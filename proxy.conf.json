@@ -1,0 +1,8 @@
+{
+  "/public/collection/v1": {
+    "target": "https://collectionapi.metmuseum.org",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

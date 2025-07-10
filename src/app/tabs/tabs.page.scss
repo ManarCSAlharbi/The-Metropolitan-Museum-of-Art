@@ -1,0 +1,8 @@
+ion-tab-bar {
+  --color-selected: var(--ion-color-teal);
+  --color: #666; /* optional: unselected icon color */
+  
+}
+ion-tab-button {
+  flex-direction: column;
+}

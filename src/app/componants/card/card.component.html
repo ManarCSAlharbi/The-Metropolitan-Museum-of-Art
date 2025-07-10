@@ -1,0 +1,52 @@
+<ion-card >
+  <img [src]="artwork.primaryImageSmall" alt="Artwork" />
+
+  <ion-card-header>
+    <ion-card-title>{{ artwork.title }}</ion-card-title>
+    <ion-card-subtitle>{{ artwork.artistDisplayName || 'Unknown Artist' }}</ion-card-subtitle>
+    <app-like-button
+      [initialCount]="likeCount"
+      [cardData]="artwork">
+    </app-like-button>
+  </ion-card-header>
+
+  <ion-button 
+  id="open-modal-{{artwork.objectID}}" 
+  color="teal" 
+  expand="block">
+    Show More Info
+  </ion-button>
+
+  <ion-modal
+   trigger="open-modal-{{artwork.objectID}}"
+    #artModal
+    
+    [presentingElement]="presentingElement"
+    [canDismiss]="true">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="end">
+            <ion-icon slot="icon-only" name="close" (click)="dismissModal($event)"></ion-icon>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <img [src]="artwork.primaryImageSmall" alt="Artwork" />
+        <h2>{{ artwork.title }}</h2>
+        <h3>{{ artwork.artistDisplayName || 'Unknown Artist' }}</h3>
+        <p><strong>Dimensions:</strong> {{ artwork.dimensions }}</p>
+        <p><strong>Date:</strong> {{ artwork.objectDate }}</p>
+
+        <h3>Add Comment</h3>
+        <ion-input label="Name" label-placement="floating" placeholder="Enter Your Name"></ion-input>
+        <ion-textarea label="Comment" label-placement="floating" placeholder="What Do You Think?" autoGrow="true"></ion-textarea>
+        <ion-button color="teal" expand="block">Comment</ion-button>
+
+        <h3>Comments (0)</h3>
+        <ion-list></ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-card>

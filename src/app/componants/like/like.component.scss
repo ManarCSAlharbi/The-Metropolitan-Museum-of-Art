@@ -1,0 +1,23 @@
+.like-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.heart-icon {
+  font-size: 22px;
+  color: #999;
+  visibility: visible; // force visibility
+  display: inline-block; // ensure layout space
+
+  &.liked {
+    color: #EF4444;
+  }
+}
+
+.like-count {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #444;
+}

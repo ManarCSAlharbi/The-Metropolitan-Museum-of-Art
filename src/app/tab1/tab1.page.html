@@ -1,0 +1,65 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="teal">
+    <ion-title class="custom-title">
+      <div class="title-text">Virtual Display</div>
+      <div class="subtitle-text">Metropolitan Museum of Art</div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large"></ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Main artwork list with infinite scroll -->
+  <ng-container *ngIf="artworks.length; else skeletonLoader">
+    <ion-card 
+      *ngFor="let art of artworks"
+      [hidden]="!art.primaryImageSmall && !art.primaryImage">
+      <app-card [artwork]="art"></app-card>
+    </ion-card>
+
+    <!-- Infinite Scroll triggers loadMore -->
+    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMore($event)">
+      <ion-infinite-scroll-content
+        loadingSpinner="crescent"
+        loadingText="Loading more artworks...">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </ng-container>
+
+  <!-- Skeleton loader matching card size -->
+  <ng-template #skeletonLoader>
+    <ng-container *ngFor="let i of [1,2,3,4,5]">
+      <ion-card>
+        <ion-card-header>
+          <!-- image placeholder -->
+          <ion-skeleton-text animated
+            style="width: 100%; aspect-ratio: 16/9; margin-bottom: 12px; border-radius: 12px; display: block;">
+          </ion-skeleton-text>
+        </ion-card-header>
+        <ion-card-content>
+          <!-- title placeholder -->
+          <ion-skeleton-text animated
+            style="width: 70%; height: 1.1rem; margin-bottom: 4px; display: block;">
+          </ion-skeleton-text>
+          <!-- subtitle placeholder -->
+          <ion-skeleton-text animated
+            style="width: 90%; height: 0.9rem; margin-bottom: 8px; display: block;">
+          </ion-skeleton-text>
+          <!-- like placeholder -->
+          <ion-skeleton-text animated
+            style="width: 30%; height: 1rem; margin-bottom: 12px; display: block;">
+          </ion-skeleton-text>
+          <!-- button placeholder centered -->
+          <ion-skeleton-text animated
+            style="width: 40%; height: 2rem; border-radius: 12px; display: block; margin: 0 auto;">
+          </ion-skeleton-text>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+  </ng-template>
+</ion-content>

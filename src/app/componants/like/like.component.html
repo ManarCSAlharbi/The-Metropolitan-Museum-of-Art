@@ -1,0 +1,8 @@
+<div class="like-wrapper" (click)="toggleLike()">
+  <ion-icon
+    [name]="liked ? 'heart' : 'heart-outline'"
+    [class.liked]="liked"
+    class="heart-icon">
+  </ion-icon>
+  <span class="like-count">{{ likeCount }}</span>
+</div>
