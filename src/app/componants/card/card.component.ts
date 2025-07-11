@@ -404,4 +404,32 @@ export class CardComponent implements OnInit, OnDestroy {
     const modal = (event.target as HTMLElement).closest('ion-modal') as HTMLIonModalElement;
     modal.dismiss();
   }
+
+  getModalId(): string {
+    if (this.artwork?.objectID) {
+      return `open-modal-${this.artwork.objectID}`;
+    }
+    // Fallback for artworks without objectID
+    const safeTitle = this.artwork?.title?.replace(/[^a-zA-Z0-9]/g, '-') || 'unknown';
+    return `open-modal-${safeTitle}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  openModal() {
+    console.log('Opening modal for artwork:', this.artwork);
+    console.log('Modal element:', this.modal);
+    console.log('Modal ID:', this.getModalId());
+    
+    if (this.modal) {
+      this.modal.present();
+    } else {
+      console.error('Modal not found! Check if ViewChild is working properly.');
+      // Fallback: try to present modal directly
+      setTimeout(() => {
+        if (this.modal) {
+          console.log('Modal found after timeout, presenting...');
+          this.modal.present();
+        }
+      }, 100);
+    }
+  }
 }

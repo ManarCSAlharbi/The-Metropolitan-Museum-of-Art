@@ -1,8 +1,10 @@
-<ion-card >
-  <img [src]="artwork.primaryImageSmall" alt="Artwork" />
+<ion-card *ngIf="artwork">
+  <img [src]="artwork.primaryImageSmall || artwork.primaryImage" 
+       alt="Artwork" 
+       onerror="this.src='assets/icon/favicon.png'" />
 
   <ion-card-header>
-    <ion-card-title>{{ artwork.title }}</ion-card-title>
+    <ion-card-title>{{ artwork.title || 'Untitled' }}</ion-card-title>
     <ion-card-subtitle>{{ artwork.artistDisplayName || 'Unknown Artist' }}</ion-card-subtitle>
     
     <!-- Likes Section -->
@@ -42,14 +44,15 @@
   </ion-card-header>
 
   <ion-button 
-    id="open-modal-{{artwork.objectID}}" 
+    [id]="getModalId()" 
     color="teal" 
-    expand="block">
+    expand="block"
+    (click)="openModal()">
     Show More Info
   </ion-button>
 
   <ion-modal
-   trigger="open-modal-{{artwork.objectID}}"
+    [trigger]="getModalId()"
     #artModal
     (ionDidOpen)="loadComments()"
     [presentingElement]="presentingElement"
@@ -64,11 +67,13 @@
       </ion-header>
 
       <ion-content class="ion-padding">
-        <img [src]="artwork.primaryImageSmall" alt="Artwork" />
-        <h2>{{ artwork.title }}</h2>
-        <h3>{{ artwork.artistDisplayName || 'Unknown Artist' }}</h3>
-        <p><strong>Dimensions:</strong> {{ artwork.dimensions }}</p>
-        <p><strong>Date:</strong> {{ artwork.objectDate }}</p>
+        <img [src]="artwork?.primaryImageSmall || artwork?.primaryImage" 
+             alt="Artwork"
+             onerror="this.src='assets/icon/favicon.png'" />
+        <h2>{{ artwork?.title || 'Untitled' }}</h2>
+        <h3>{{ artwork?.artistDisplayName || 'Unknown Artist' }}</h3>
+        <p><strong>Dimensions:</strong> {{ artwork?.dimensions || 'Not specified' }}</p>
+        <p><strong>Date:</strong> {{ artwork?.objectDate || 'Unknown date' }}</p>
 
         <h3>Add Comment</h3>
         <ion-input 
