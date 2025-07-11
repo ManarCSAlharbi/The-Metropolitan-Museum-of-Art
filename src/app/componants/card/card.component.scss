@@ -50,6 +50,97 @@ ion-card {
   align-items: center;
 }
 
+/* Likes Section Styling */
+.likes-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 0;
+
+  .like-button, .remove-button {
+    --padding-start: 0;
+    --padding-end: 0;
+    margin: 0;
+    
+    ion-icon {
+      font-size: 1.2rem;
+      transition: color 0.2s ease;
+      
+      &[color="danger"] {
+        color: #ff4444 !important;
+      }
+      
+      &.liked {
+        color: #ff4444 !important;
+      }
+      
+      // Ensure filled heart stays red
+      &[name="heart"] {
+        color: #ff4444 !important;
+      }
+    }
+  }
+  
+  .remove-button {
+    position: relative;
+    
+    ion-icon {
+      &:hover {
+        color: #cc0000 !important;
+        transform: scale(1.1);
+      }
+    }
+    
+    // Add a subtle animation to indicate it's removable
+    &:hover {
+      animation: pulse 1s infinite;
+    }
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .likes-count {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+  }
+}
+
+.likes-section-modal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+
+  .like-button {
+    --padding-start: 0;
+    --padding-end: 0;
+    margin: 0;
+    
+    ion-icon {
+      font-size: 1.4rem;
+    }
+  }
+
+  .likes-count {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 600;
+  }
 }
 
 /* MODAL CONTENT STYLING */
@@ -163,4 +254,125 @@ ion-item {
 }
 ion-header {
   box-shadow: none;
+}
+
+/* COMMENTS STYLING */
+.comment-date {
+  font-size: 0.8em;
+  color: var(--ion-color-medium);
+  margin-top: 4px;
+}
+
+ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  
+  ion-label {
+    h3 {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--ion-color-primary);
+    }
+    
+    p {
+      margin: 2px 0;
+      line-height: 1.4;
+    }
+  }
+}
+
+ion-modal {
+  ion-content {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+  }
+  
+  h3 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+  }
+  
+  ion-input, ion-textarea {
+    margin-bottom: 16px;
+    
+    &.ion-invalid {
+      // Disable all automatic validation styling
+      --border-color: initial;
+      --color: initial;
+      --placeholder-color: initial;
+    }
+    
+    &.ion-valid {
+      // Disable all automatic validation styling
+      --border-color: initial;
+      --color: initial;
+    }
+  }
+  
+  .error-message {
+    color: #ff4444;
+    font-size: 0.85rem;
+    margin-top: -12px;
+    margin-bottom: 16px;
+    padding-left: 16px;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  ion-button {
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    
+    &[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    &:not([disabled]):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+/* Alert Styling */
+:global(.alert-wrapper) {
+  .alert-head {
+    text-align: center;
+    padding: 20px 20px 10px;
+  }
+  
+  .alert-message {
+    text-align: center;
+    padding: 0 20px 20px;
+    line-height: 1.5;
+  }
+  
+  .alert-button-group {
+    .alert-button {
+      &.secondary {
+        color: #666;
+      }
+      
+      &.danger {
+        color: #ff4444;
+        font-weight: 600;
+      }
+    }
+  }
+}
 }

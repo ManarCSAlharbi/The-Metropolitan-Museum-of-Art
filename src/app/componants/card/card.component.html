@@ -4,23 +4,54 @@
   <ion-card-header>
     <ion-card-title>{{ artwork.title }}</ion-card-title>
     <ion-card-subtitle>{{ artwork.artistDisplayName || 'Unknown Artist' }}</ion-card-subtitle>
-    <app-like-button
-      [initialCount]="likeCount"
-      [cardData]="artwork">
-    </app-like-button>
+    
+    <!-- Likes Section -->
+    <div class="likes-section">
+      <ion-button 
+        fill="clear" 
+        size="small" 
+        (click)="toggleLike()"
+        class="like-button"
+        *ngIf="!showRemoveButton">
+        <ion-icon 
+          slot="icon-only" 
+          [name]="isLiked ? 'heart' : 'heart-outline'"
+          [class.liked]="isLiked"
+          [color]="isLiked ? 'danger' : 'medium'">
+        </ion-icon>
+      </ion-button>
+      
+      <!-- Remove button for Tab3 -->
+      <ion-button 
+        fill="clear" 
+        size="small" 
+        (click)="removeFromLiked()"
+        class="remove-button"
+        color="danger"
+        *ngIf="showRemoveButton"
+        title="Click to remove from liked artworks">
+        <ion-icon 
+          slot="icon-only" 
+          name="heart"
+          color="danger">
+        </ion-icon>
+      </ion-button>
+      
+      <span class="likes-count">{{ likes }} likes</span>
+    </div>
   </ion-card-header>
 
   <ion-button 
-  id="open-modal-{{artwork.objectID}}" 
-  color="teal" 
-  expand="block">
+    id="open-modal-{{artwork.objectID}}" 
+    color="teal" 
+    expand="block">
     Show More Info
   </ion-button>
 
   <ion-modal
    trigger="open-modal-{{artwork.objectID}}"
     #artModal
-    
+    (ionDidOpen)="loadComments()"
     [presentingElement]="presentingElement"
     [canDismiss]="true">
     <ng-template>
@@ -40,12 +71,57 @@
         <p><strong>Date:</strong> {{ artwork.objectDate }}</p>
 
         <h3>Add Comment</h3>
-        <ion-input label="Name" label-placement="floating" placeholder="Enter Your Name"></ion-input>
-        <ion-textarea label="Comment" label-placement="floating" placeholder="What Do You Think?" autoGrow="true"></ion-textarea>
-        <ion-button color="teal" expand="block">Comment</ion-button>
+        <ion-input 
+          label="Name" 
+          label-placement="floating" 
+          placeholder="Enter Your Name"
+          [(ngModel)]="newComment.username"
+          (ionInput)="onUserStartsTyping()"
+          maxlength="50"
+          required>
+        </ion-input>
+        <div class="error-message" *ngIf="!validation.username.isValid && newComment.username.length > 0 && !justSubmitted">
+          {{ validation.username.errorMessage }}
+        </div>
 
-        <h3>Comments (0)</h3>
-        <ion-list></ion-list>
+        <ion-textarea 
+          label="Comment" 
+          label-placement="floating" 
+          placeholder="What Do You Think?" 
+          autoGrow="true"
+          [(ngModel)]="newComment.comment"
+          (ionInput)="onUserStartsTyping()"
+          maxlength="500"
+          rows="3"
+          required>
+        </ion-textarea>
+        <div class="error-message" *ngIf="!validation.comment.isValid && newComment.comment.length > 0 && !justSubmitted">
+          {{ validation.comment.errorMessage }}
+        </div>
+
+        <ion-button 
+          color="teal" 
+          expand="block"
+          (click)="addComment()"
+          [disabled]="!newComment.username.trim() || !newComment.comment.trim()">
+          Comment
+        </ion-button>
+
+        <h3>Comments ({{ comments.length }})</h3>
+        <ion-list>
+          <ion-item *ngFor="let comment of comments">
+            <ion-label>
+              <h3>{{ comment.username }}</h3>
+              <p>{{ comment.comment }}</p>
+              <p class="comment-date">{{ comment.creation_date | date:'short' }}</p>
+            </ion-label>
+          </ion-item>
+          <ion-item *ngIf="comments.length === 0">
+            <ion-label>
+              <p>No comments yet. Be the first to comment!</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
       </ion-content>
     </ng-template>
   </ion-modal>
