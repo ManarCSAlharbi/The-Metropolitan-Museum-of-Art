@@ -8,6 +8,7 @@ ion-card {
   padding: 16px;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
 
   img {
     width: 100%;
@@ -20,11 +21,14 @@ ion-card {
   ion-card-header {
     width: 100%;
   }
+}
+
 .card-header-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   padding: 12px 16px;
+  width: 100%;
 }
 
 .text-section {
@@ -36,7 +40,7 @@ ion-card {
   ion-card-title {
     font-weight: 600;
     font-size: 1.1rem;
-    margin-bottom: 4px;
+  
   }
 
   ion-card-subtitle {
@@ -66,6 +70,7 @@ ion-card {
     ion-icon {
       font-size: 1.2rem;
       transition: color 0.2s ease;
+      color: #666; // Default gray color for outline heart
       
       &[color="danger"] {
         color: #ff4444 !important;
@@ -145,11 +150,11 @@ ion-card {
 
 /* MODAL CONTENT STYLING */
 ion-modal::part(content) {
-  
-  border-radius: 20px;
+  border-radius: 0;
   max-width: 500px;
   margin: auto;
 }
+
 .modal-close-button {
   position: absolute;
   top: 8px;
@@ -157,11 +162,12 @@ ion-modal::part(content) {
   z-index: 1000;
 
   font-size: 24px;
-  color: #666;
+
+  
   cursor: pointer;
 
   &:hover {
-    color: #333;
+    color: var(--ion-color-teal-shade, #2f3433);
   }
 }
 
@@ -186,12 +192,16 @@ ion-title {
   font-size: 1.4rem;
   font-weight: 600;
   margin: 0 0 8px;
+  color: #333;
+  padding: 16px;
+
 }
 
 ion-card-subtitle {
   font-size: 0.95rem;
   color: #666;
   margin-bottom: 16px;
+  padding: 10px;
 }
 
 .comment-form {
@@ -200,13 +210,18 @@ ion-card-subtitle {
   padding: auto;
   align-items: center;
   width: 100%;
-
+  fill:outline;
+  margin-top: 16px;
+  
 }
 
 .comment-form ion-input,
 .comment-form ion-textarea {
   margin: 12px;
   text-align: left; // apply this as well
+  fill: outline; 
+  padding: 10px;
+  
 }
 
 /* BUTTON INSIDE MODAL */
@@ -214,8 +229,8 @@ ion-button[color="teal"] {
   margin: 12px auto;
   width: 100%;
   max-width: 200px;
-  --background: var(--ion-color-teal);
-  --color: var(--ion-color-teal-contrast);
+  --background: var(--ion-color-teal, "teal");
+  --color: var(--ion-color-teal-contrast, white);
   --border-radius: 12px;
 }
 
@@ -227,9 +242,7 @@ ion-row {
   margin: 20px 0 10px;
   font-weight: bold;
   font-size: 1rem;
-  
 }
-
 
 /* COMMENTS LIST */
 ion-list {
@@ -250,8 +263,8 @@ ion-item {
     color: #444;
     text-align: left;
   }
-  
 }
+
 ion-header {
   box-shadow: none;
 }
@@ -271,7 +284,8 @@ ion-item {
     h3 {
       font-weight: 600;
       margin-bottom: 4px;
-      color: var(--ion-color-primary);
+      
+      
     }
     
     p {
@@ -293,7 +307,7 @@ ion-modal {
     margin-top: 24px;
     margin-bottom: 16px;
     font-weight: 600;
-    color: var(--ion-color-primary);
+    
   }
   
   ion-input, ion-textarea {
@@ -375,4 +389,29 @@ ion-modal {
     }
   }
 }
+title.modal {
+  top: 8px;
+  right: 8px;
+  z-index: 1000;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+modal.toolbar {
+  --background: #f8f9fa;
+  --border-radius: 0;
+  --box-shadow: none;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  
+}
+
+h3.h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  padding-bottom: 16px;
 }

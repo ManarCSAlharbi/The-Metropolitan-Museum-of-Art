@@ -173,7 +173,15 @@ export class ApiService {
 
   // Comments API methods
   getComments(itemId: string): Observable<Comment[]> {
-    return this.http.get<Comment[]>(`${this.commentsUrl}?item_id=${itemId}`);
+    return this.http.get<Comment[]>(`${this.commentsUrl}?item_id=${itemId}`).pipe(
+      catchError(error => {
+        if (error.status === 400) {
+          // 400 errors are expected for items without comments
+          return of([]);
+        }
+        throw error;
+      })
+    );
   }
 
   // Likes API methods

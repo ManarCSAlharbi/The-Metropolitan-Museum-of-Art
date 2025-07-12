@@ -1,6 +1,5 @@
-<!--hello testing-->
-<!---->
-<ion-header [translucent]="true">
+
+<ion-header class="ion-header">
   <ion-toolbar color="teal">
     <ion-title class="custom-title">
       <div class="title-text">Virtual Display</div>
@@ -10,19 +9,17 @@
 </ion-header>
 
 <ion-content>
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large"></ion-title>
-    </ion-toolbar>
-  </ion-header>
-
   <!-- Main artwork list with infinite scroll -->
   <ng-container *ngIf="artworks.length; else skeletonLoader">
-    <ion-card 
-      *ngFor="let art of artworks"
-      [hidden]="!art.primaryImageSmall && !art.primaryImage">
-      <app-card [artwork]="art"></app-card>
-    </ion-card>
+    <div class="artwork-grid">
+      <app-card 
+        *ngFor="let art of artworks; let i = index"
+        class="card-animate"
+        [style.animation-delay.ms]="i * 100"
+        [artwork]="art"
+        [hidden]="!art.primaryImageSmall && !art.primaryImage">
+      </app-card>
+    </div>
 
     <!-- Infinite Scroll triggers loadMore -->
     <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMore($event)">

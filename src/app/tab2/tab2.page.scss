@@ -5,12 +5,50 @@
   color: white;
 }
 
-.search-container {
-  padding: 16px;
+/* Centered search bar wrapper */
+.search-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 16px;
+  background: var(--ion-background-color, #fff);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.search-results {
-  padding: 8px;
+/* Beautiful centered search bar styling */
+ion-searchbar {
+  --background: #f8f9fa;
+  --border-radius: 25px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --placeholder-color: #666;
+  --color: #333;
+  --icon-color: #009688;
+  --clear-button-color: #666;
+  
+  max-width: 500px;
+  width: 100%;
+  margin: 0;
+  
+  &:focus-within {
+    --box-shadow: 0 6px 20px rgba(0, 150, 136, 0.15);
+    transform: translateY(-1px);
+    transition: all 0.3s ease;
+  }
+}
+
+/* Mobile responsive - simplified */
+@media screen and (max-width: 768px) {
+  .search-container {
+    padding: 12px;
+  }
+}
+
+/* Content fixes - simplified */
+ion-content {
+  display: block;
 }
 
 .loading-container {

@@ -1,4 +1,4 @@
-<ion-card *ngIf="artwork">
+<ion-card *ngIf="artwork && artwork.objectID">
   <img [src]="artwork.primaryImageSmall || artwork.primaryImage" 
        alt="Artwork" 
        onerror="this.src='assets/icon/favicon.png'" />
@@ -14,12 +14,13 @@
         size="small" 
         (click)="toggleLike()"
         class="like-button"
+        [class.liked-state]="isLiked"
         *ngIf="!showRemoveButton">
         <ion-icon 
           slot="icon-only" 
           [name]="isLiked ? 'heart' : 'heart-outline'"
-          [class.liked]="isLiked"
-          [color]="isLiked ? 'danger' : 'medium'">
+          class="like-icon"
+          [class.is-liked]="isLiked">
         </ion-icon>
       </ion-button>
       
@@ -29,39 +30,41 @@
         size="small" 
         (click)="removeFromLiked()"
         class="remove-button"
-        color="danger"
         *ngIf="showRemoveButton"
         title="Click to remove from liked artworks">
         <ion-icon 
           slot="icon-only" 
           name="heart"
-          color="danger">
+          class="remove-icon">
         </ion-icon>
       </ion-button>
       
-      <span class="likes-count">{{ likes }} likes</span>
+      <span class="likes-count">{{ likes }}</span>
     </div>
   </ion-card-header>
 
   <ion-button 
-    [id]="getModalId()" 
-    color="teal" 
+
+    class="show-more-button"
     expand="block"
-    (click)="openModal()">
+    (click)="openModal()"
+    color="teal"
+    >
     Show More Info
   </ion-button>
 
   <ion-modal
-    [trigger]="getModalId()"
     #artModal
     (ionDidOpen)="loadComments()"
-    [presentingElement]="presentingElement"
     [canDismiss]="true">
     <ng-template>
       <ion-header>
-        <ion-toolbar>
-          <ion-buttons slot="end">
-            <ion-icon slot="icon-only" name="close" (click)="dismissModal($event)"></ion-icon>
+        <ion-toolbar class="modal.toolbar">
+          <ion-title class="title.modal" slot="start">{{ artwork.title || 'Untitled' }}</ion-title>
+          <ion-buttons slot="end" >
+            <ion-button fill="clear" (click)="dismissModal($event)">
+              <ion-icon slot="icon-only" name="close" style="color: gray;"></ion-icon>
+            </ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
@@ -70,8 +73,8 @@
         <img [src]="artwork?.primaryImageSmall || artwork?.primaryImage" 
              alt="Artwork"
              onerror="this.src='assets/icon/favicon.png'" />
-        <h2>{{ artwork?.title || 'Untitled' }}</h2>
-        <h3>{{ artwork?.artistDisplayName || 'Unknown Artist' }}</h3>
+        <h2><strong>{{ artwork?.title || 'Untitled' }}</strong></h2>
+        <h3 class="h3">{{ artwork?.artistDisplayName || 'Unknown Artist' }}</h3>
         <p><strong>Dimensions:</strong> {{ artwork?.dimensions || 'Not specified' }}</p>
         <p><strong>Date:</strong> {{ artwork?.objectDate || 'Unknown date' }}</p>
 
@@ -79,6 +82,7 @@
         <ion-input 
           label="Name" 
           label-placement="floating" 
+          fill="outline"
           placeholder="Enter Your Name"
           [(ngModel)]="newComment.username"
           (ionInput)="onUserStartsTyping()"
@@ -105,10 +109,11 @@
         </div>
 
         <ion-button 
-          color="teal" 
+          class="comment-submit-button"
           expand="block"
           (click)="addComment()"
-          [disabled]="!newComment.username.trim() || !newComment.comment.trim()">
+          [disabled]="!newComment.username.trim() || !newComment.comment.trim()"
+          color="teal">
           Comment
         </ion-button>
 

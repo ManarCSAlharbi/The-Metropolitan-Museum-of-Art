@@ -2,7 +2,7 @@ import { Component, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import {
   IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
   IonButton, IonIcon, IonModal, IonHeader, IonToolbar,
-  IonTitle, IonContent, IonButtons, IonInput, IonTextarea, IonList, IonItem, IonLabel
+  IonContent, IonButtons, IonInput, IonTextarea, IonList, IonItem, IonLabel, IonTitle
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { close, heart, heartOutline } from 'ionicons/icons';
@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { AlertController } from '@ionic/angular';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-card',
@@ -21,7 +22,7 @@ import { AlertController } from '@ionic/angular';
     IonList, IonTextarea, IonInput, IonButtons,
     IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
     IonButton, IonIcon, IonModal, IonHeader, IonToolbar,
-    IonContent, IonItem, IonLabel,
+    IonContent, IonItem, IonLabel, IonTitle,
     CommonModule, FormsModule
   ],
   templateUrl: './card.component.html',
@@ -32,7 +33,6 @@ export class CardComponent implements OnInit, OnDestroy {
   @Input() artwork!: any;
   @Input() showRemoveButton: boolean = false; // Show remove button in Tab3
   @ViewChild(IonModal) modal?: IonModal;
-  presentingElement: HTMLElement | null = null;
 
   comments: Comment[] = [];
   likes: number = 0;
@@ -63,14 +63,13 @@ export class CardComponent implements OnInit, OnDestroy {
     private apiService: ApiService, 
     private likedArtworksService: LikedArtworksService,
     private likeCountService: LikeCountService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private http: HttpClient
   ) {
     addIcons({ close, heart, heartOutline });
   }
 
   ngOnInit() {
-    this.presentingElement = document.querySelector('ion-router-outlet');
-    
     // Initialize like state from local storage
     if (this.artwork?.objectID) {
       this.isLiked = this.likedArtworksService.isArtworkLiked(this.artwork.objectID);
@@ -83,6 +82,12 @@ export class CardComponent implements OnInit, OnDestroy {
     
     // Load fresh data from API
     this.loadLikes();
+    
+    // Load comments for this artwork
+    this.loadComments();
+    
+    // Test the specific API endpoint for debugging
+    this.testApiEndpoint();
     
     // Subscribe to liked artworks changes for real-time updates
     this.likedArtworksSubscription = this.likedArtworksService.getLikedArtworks().subscribe(
@@ -115,18 +120,35 @@ export class CardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Load comments for the artwork modal
+  // Load comments for the artwork
   loadComments() {
     if (this.artwork?.objectID) {
+      console.log(`Loading comments for artwork: ${this.artwork?.title || 'Unknown Title'} (ID: ${this.artwork.objectID})`);
+      
       this.apiService.getComments(this.artwork.objectID.toString()).subscribe({
         next: (comments) => {
-          this.comments = comments;
+          console.log(`Comments received for ${this.artwork?.title || 'Unknown Title'}:`, comments);
+          this.comments = comments || [];
+          
+          if (this.comments.length > 0) {
+            console.log(`✅ ${this.comments.length} comments loaded for artwork: ${this.artwork?.title}`);
+          } else {
+            console.log(`ℹ️ No comments found for artwork: ${this.artwork?.title}`);
+          }
         },
         error: (error) => {
-          console.error('Error loading comments:', error);
+          // Handle different error types gracefully
+          if (error.status === 400) {
+            console.log(`ℹ️ No comments available for artwork: ${this.artwork?.title} (ID: ${this.artwork.objectID})`);
+          } else {
+            console.error(`❌ Error loading comments for artwork ${this.artwork?.title || 'Unknown Title'}:`, error);
+          }
           this.comments = [];
         }
       });
+    } else {
+      console.log('❌ No artwork ID available for loading comments');
+      this.comments = [];
     }
   }
 
@@ -322,7 +344,7 @@ export class CardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Add new comment with validation
+  
   // Add new comment with validation
   addComment() {
     const username = this.newComment.username.trim();
@@ -376,23 +398,60 @@ export class CardComponent implements OnInit, OnDestroy {
     modal.dismiss();
   }
 
-  getModalId(): string {
-    if (this.artwork?.objectID) {
-      return `open-modal-${this.artwork.objectID}`;
-    }
-    const safeTitle = this.artwork?.title?.replace(/[^a-zA-Z0-9]/g, '-') || 'unknown';
-    return `open-modal-${safeTitle}-${Math.random().toString(36).substr(2, 9)}`;
+  getModalId() {
+    return `modal-${this.artwork?.objectID || 'unknown'}`;
   }
 
   openModal() {
+    console.log('openModal called for artwork:', this.artwork?.objectID);
+    console.log('Modal reference:', this.modal);
+    
+    // Refresh comments when modal opens
+    this.loadComments();
+    
     if (this.modal) {
+      console.log('Presenting modal...');
       this.modal.present();
     } else {
+      console.log('Modal not available, retrying in 100ms...');
       setTimeout(() => {
         if (this.modal) {
+          console.log('Presenting modal after timeout...');
           this.modal.present();
+        } else {
+          console.log('Modal still not available after timeout');
         }
       }, 100);
+    }
+  }
+
+  // Debug method to test specific API endpoint
+  testApiEndpoint() {
+    // Only test for the specific artwork ID you want to debug
+    if (this.artwork?.objectID === 451023) {
+      const testUrl = 'https://us-central1-involvement-api.cloudfunctions.net/capstoneApi/apps/pKSoTbGzFhj5RtoeFQif/comments?item_id=451023';
+      console.log('🔍 Testing API endpoint for artwork 451023:', testUrl);
+      console.log('Artwork Name:', this.artwork?.title || 'No title available');
+      console.log('Artwork ID:', this.artwork?.objectID || 'No ID available');
+      
+      this.http.get(testUrl).subscribe({
+        next: (response) => {
+          console.log('RAW API Response for item_id=451023:', response);
+          console.log('Response type:', typeof response);
+          console.log('Is Array:', Array.isArray(response));
+          if (Array.isArray(response)) {
+            console.log('Number of comments:', response.length);
+            response.forEach((comment, index) => {
+              console.log(`Comment ${index + 1}:`, comment);
+            });
+          }
+        },
+        error: (error) => {
+          console.error('API Error:', error);
+          console.error('Error status:', error.status);
+          console.error('Error message:', error.message);
+        }
+      });
     }
   }
 }

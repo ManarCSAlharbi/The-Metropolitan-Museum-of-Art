@@ -1,3 +1,15 @@
+
+
+/* Header styling */
+ion-header {
+  width: 100%;
+  height: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 1000; 
+  background: var(--ion-color-teal);
+}
+
 .title-text {
   padding-top: 8px;
   text-align: center;
@@ -9,9 +21,82 @@
 
 .subtitle-text {
   text-align: center;
-  padding-bottom: 8px;
+  padding-bottom: 10px;
   font-family: Arial, sans-serif;
   font-size: 16px;
   color: white;
+}
+
+/* Custom card styling for Tab1 - Updated for direct app-card usage */
+app-card {
+  display: block;
+  width: 100%;
+  margin: 16px;
+  border-radius: 16px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+  }
+  
+  /* Hide cards smoothly when they don't have images */
+  &[hidden] {
+    display: none !important;
+  }
+  
+  /* Apply card styles to the inner ion-card */
+  ion-card {
+    margin: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    
+    &:hover {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    }
+  }
+}
+
+/* Content padding to account for fixed header */
+ion-content {
+  --padding-top: 0;
+}
+
+/* Responsive grid layout for cards */
+.artwork-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  margin-top: 16px; /* Add top margin to prevent content from hiding behind header */
+  
+  app-card {
+    margin: 0; /* Remove individual margins since grid handles spacing */
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .artwork-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+}
+
+/* Loading animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-animate {
+  animation: fadeInUp 0.6s ease-out forwards;
 }
 

@@ -36,3 +36,121 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
 
+/* Fix for headers disappearing when DevTools is opened */
+ion-header {
+  position: relative !important;
+  z-index: 1000 !important;
+  
+  &[translucent="true"] {
+    background: var(--ion-color-teal, #009688) !important;
+    backdrop-filter: none !important;
+    
+    ion-toolbar {
+      --background: var(--ion-color-teal, #009688) !important;
+      position: relative !important;
+      z-index: 1001 !important;
+    }
+  }
+}
+
+/* Ensure tab bar stays visible */
+ion-tab-bar {
+  position: fixed !important;
+  bottom: 0 !important;
+  z-index: 1000 !important;
+  width: 100% !important;
+}
+
+/* Ensure content doesn't overlap with fixed headers */
+ion-content {
+  --padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Specific fix for modal headers */
+ion-modal {
+  ion-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1002 !important;
+  }
+}
+
+/* Additional header fixes for DevTools viewport changes */
+ion-app {
+  ion-header {
+    position: relative !important;
+    display: block !important;
+    visibility: visible !important;
+    height: auto !important;
+    min-height: 56px !important;
+  }
+  
+  ion-toolbar {
+    --min-height: 56px !important;
+    height: auto !important;
+    min-height: 56px !important;
+    display: flex !important;
+    visibility: visible !important;
+  }
+  
+  .custom-title {
+    display: block !important;
+    visibility: visible !important;
+    
+    .title-text, .subtitle-text {
+      display: block !important;
+      visibility: visible !important;
+    }
+  }
+}
+
+/* Force tab pages to maintain proper layout */
+ion-tab-button {
+  min-height: 50px !important;
+  display: flex !important;
+  visibility: visible !important;
+}
+
+/* Prevent header collapse on small viewports */
+@media screen and (max-height: 600px) {
+  ion-header {
+    position: relative !important;
+    display: block !important;
+    visibility: visible !important;
+    
+    ion-toolbar {
+      --min-height: 44px !important;
+      min-height: 44px !important;
+    }
+    
+    .title-text {
+      font-size: 20px !important;
+    }
+    
+    .subtitle-text {
+      font-size: 14px !important;
+    }
+  }
+}
+
+/* Custom global card animations */
+.smooth-card-transition {
+  ion-card {
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+}
+
+/* Search bar simple fixes */
+ion-searchbar {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  width: 100% !important;
+}
+

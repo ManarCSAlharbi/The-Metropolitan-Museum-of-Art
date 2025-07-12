@@ -6,7 +6,7 @@
 }
 
 .liked-artworks-container {
-  padding: 16px;
+  padding: 80px 16px 16px 16px; // Added top padding to push content below header
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
@@ -24,7 +24,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 120px 20px 60px 20px; // Added top padding to push content below header
   text-align: center;
   height: 60vh;
 
