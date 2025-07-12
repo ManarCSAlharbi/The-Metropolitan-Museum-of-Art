@@ -202,6 +202,12 @@ export class CardComponent implements OnInit, OnDestroy {
 
   // Reset validation state when user starts typing after submission
   onUserStartsTyping() {
+    // Don't exit reset state immediately if just submitted
+    if (this.justSubmitted) {
+      // Still in submission state, keep gray color
+      return;
+    }
+    
     this.isResetState = false; // User is now typing, exit reset state
     
     if (this.justSubmitted && (this.newComment.username.length > 0 || this.newComment.comment.length > 0)) {
@@ -386,9 +392,10 @@ export class CardComponent implements OnInit, OnDestroy {
           comment: { isValid: true, errorMessage: '' }
         };
         
+        // Keep gray state longer to ensure visual feedback
         setTimeout(() => {
           this.justSubmitted = false;
-        }, 1000);
+        }, 2000); // Extended to 2 seconds
       },
       error: (error) => {
         console.error('Error adding comment:', error);
