@@ -82,10 +82,10 @@
         <ion-input 
           label="Name" 
           label-placement="floating" 
-          fill="outline"
           placeholder="Enter Your Name"
           [(ngModel)]="newComment.username"
           (ionInput)="onUserStartsTyping()"
+          [class]="getValidationClass('username')"
           maxlength="50"
           required>
         </ion-input>
@@ -100,6 +100,7 @@
           autoGrow="true"
           [(ngModel)]="newComment.comment"
           (ionInput)="onUserStartsTyping()"
+          [class]="getValidationClass('comment')"
           maxlength="500"
           rows="3"
           required>

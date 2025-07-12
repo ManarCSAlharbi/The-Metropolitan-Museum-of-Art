@@ -46,6 +46,7 @@ export class CardComponent implements OnInit, OnDestroy {
   private likedArtworksSubscription?: Subscription;
   private likeCountSubscription?: Subscription;
   public justSubmitted: boolean = false; // Prevents validation errors after form submission
+  public isResetState: boolean = true; // Tracks if form is in reset/default state
 
   // Form validation state
   validation = {
@@ -201,6 +202,8 @@ export class CardComponent implements OnInit, OnDestroy {
 
   // Reset validation state when user starts typing after submission
   onUserStartsTyping() {
+    this.isResetState = false; // User is now typing, exit reset state
+    
     if (this.justSubmitted && (this.newComment.username.length > 0 || this.newComment.comment.length > 0)) {
       this.justSubmitted = false;
     }
@@ -374,9 +377,10 @@ export class CardComponent implements OnInit, OnDestroy {
       next: (comment) => {
         this.comments.push(comment);
         this.justSubmitted = true;
+        this.isResetState = true; // Return to reset state
         this.newComment = { username: '', comment: '' };
         
-        // Reset validation state
+        // Reset validation state to default
         this.validation = {
           username: { isValid: true, errorMessage: '' },
           comment: { isValid: true, errorMessage: '' }
@@ -453,5 +457,25 @@ export class CardComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  // Helper method to get validation CSS class
+  getValidationClass(field: 'username' | 'comment'): string {
+    // If just submitted, always return gray
+    if (this.justSubmitted) {
+      return 'force-gray';
+    }
+    
+    // If reset state or empty, return gray
+    if (this.isResetState || this.newComment[field].trim().length === 0) {
+      return 'force-gray';
+    }
+    
+    // Check validation state
+    if (!this.validation[field].isValid) {
+      return 'invalid-state';
+    }
+    
+    return 'valid-state';
   }
 }

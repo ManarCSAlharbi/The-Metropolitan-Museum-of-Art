@@ -313,18 +313,58 @@ ion-modal {
   ion-input, ion-textarea {
     margin-bottom: 16px;
     
+    // Default rest state - gray
+    --border-color: #cccccc;
+    --color: #333333;
+    --placeholder-color: #999999;
+    
     &.ion-invalid {
-      // Disable all automatic validation styling
-      --border-color: initial;
-      --color: initial;
-      --placeholder-color: initial;
+      --border-color: #ff4444;
+      --color: #ff4444;
+      --placeholder-color: #ff9999;
     }
     
     &.ion-valid {
-      // Disable all automatic validation styling
-      --border-color: initial;
-      --color: initial;
+      --border-color: #28a745;
+      --color: #28a745;
     }
+    
+    // Force gray state
+    &.force-gray {
+      --border-color: #cccccc;
+      --color: #333333;
+      --placeholder-color: #999999;
+    }
+    
+    &.invalid-state {
+      --border-color: #ff4444;
+      --color: #ff4444;
+      --placeholder-color: #ff9999;
+    }
+    
+    &.valid-state {
+      --border-color: #28a745;
+      --color: #28a745;
+    }
+  }
+  
+  // Make textarea rectangular like input
+  ion-textarea[fill="outline"] {
+    --border-radius: 8px;
+    min-height: 80px;
+    resize: none;
+    
+    .native-textarea {
+      border-radius: 8px !important;
+    }
+  }
+  
+  // Force default gray state for empty fields
+  ion-input[fill="outline"]:not(.ion-invalid):not(.ion-valid),
+  ion-textarea[fill="outline"]:not(.ion-invalid):not(.ion-valid) {
+    border-color: #cccccc !important;
+    --border-color: #cccccc !important;
+    --color: #333333 !important;
   }
   
   .error-message {
