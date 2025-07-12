@@ -13,10 +13,9 @@ export class TabsPage {
   public environmentInjector = inject(EnvironmentInjector);
 
   constructor() {
+    // Register icons for the tab navigation
     addIcons({home ,search,heart});
   }
-
-
 }
 
 

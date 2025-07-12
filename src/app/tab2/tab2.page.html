@@ -17,9 +17,8 @@
   <ion-searchbar 
     [(ngModel)]="searchTerm"
     (ionInput)="onSearchChange($event)"
-    placeholder="Search by artwork title or artist name..."
-    show-clear-button="focus"
-    debounce="300">
+    placeholder="Search any artwork, artist, style, or culture..."
+    show-clear-button="focus">
   </ion-searchbar>
 
   <!-- Loading spinner -->
@@ -41,19 +40,32 @@
   <div *ngIf="artworks.length === 0 && !isLoading && searchTerm.trim().length > 0" 
        class="no-results">
     <p>No artworks found for "{{ searchTerm }}"</p>
-    <p>Try searching with:</p>
+    <p>Don't worry! Try these tips:</p>
     <ul style="text-align: left; display: inline-block;">
-      <li>Complete artwork title (e.g., "Mona Lisa")</li>
-      <li>Artist's full name (e.g., "Vincent van Gogh")</li>
-      <li>Specific keywords from the title</li>
+      <li>Try just part of the name (e.g., "Van" for "Van Gogh")</li>
+      <li>Use single keywords (e.g., "Egyptian", "sculpture")</li>
+      <li>Try different spellings or variations</li>
+      <li>Search for the artist's last name only</li>
+      <li>Try broader terms like "painting", "portrait", "landscape"</li>
     </ul>
+    <p style="font-size: 12px; color: #999; margin-top: 15px;">
+      Note: The search includes multiple strategies to find matches
+    </p>
   </div>
 
   <!-- Initial message -->
   <div *ngIf="searchTerm.trim().length === 0 && !isLoading" 
        class="welcome-message">
     <h3>Search The Metropolitan Museum of Art</h3>
-    <p>Enter specific artwork titles or artist names for best results</p>
-    <p style="font-size: 14px; margin-top: 10px;">Examples: "Starry Night", "Pablo Picasso", "Egyptian Art"</p>
+    <p>Search works great with partial matching!</p>
+    <p style="font-size: 14px; margin-top: 10px;">
+      <strong>Try searching for:</strong><br>
+      • <strong>Artists:</strong> Any part of artist names<br>
+      • <strong>Artworks:</strong> Any part of artwork titles<br>
+      • <strong>Styles:</strong> renaissance, baroque, impressionist<br>
+      • <strong>Types:</strong> painting, sculpture, drawing<br>
+      • <strong>Cultures:</strong> greek, roman, chinese, islamic<br>
+      • <strong>Even short words work!</strong>
+    </p>
   </div>
 </ion-content>

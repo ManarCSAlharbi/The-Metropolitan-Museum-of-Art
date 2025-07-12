@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { IonApp, IonRouterOutlet, IonButton, IonIcon } from '@ionic/angular/standalone';
+import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { trashBin } from 'ionicons/icons';
-
 
 @Component({
   selector: 'app-root',
@@ -11,6 +10,7 @@ import { trashBin } from 'ionicons/icons';
 })
 export class AppComponent {
   constructor() {
+    // Register icons used throughout the application
     addIcons({ trashBin });
   }
 }

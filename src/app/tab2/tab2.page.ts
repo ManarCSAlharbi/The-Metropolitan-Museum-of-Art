@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonSearchbar, IonGrid, IonRow, IonCol, IonSpinner } from '@ionic/angular/standalone';
 import { CardComponent } from '../componants/card/card.component';
 import { ApiService, Artwork } from '../services/api/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Observable, Subject, switchMap, debounceTime, distinctUntilChanged, of } from 'rxjs';
+import { Observable, Subject, switchMap, debounceTime, distinctUntilChanged, of, Subscription } from 'rxjs';
 
 
 @Component({
@@ -17,51 +17,71 @@ import { Observable, Subject, switchMap, debounceTime, distinctUntilChanged, of 
     CardComponent, CommonModule, FormsModule
   ]
 })
-export class Tab2Page {
+export class Tab2Page implements OnInit, OnDestroy {
   searchTerm: string = '';
   artworks: Artwork[] = [];
   isLoading: boolean = false;
+  
+  // Search management
   private searchSubject = new Subject<string>();
+  private searchSubscription?: Subscription;
 
-  constructor(private apiService: ApiService) {
-    // Set up search with debounce
-    this.searchSubject.pipe(
-      debounceTime(300), // Reduced wait time for better responsiveness
+  constructor(private apiService: ApiService) {}
+
+  ngOnInit() {
+    this.setupSearchSubscription();
+  }
+
+  ngOnDestroy() {
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
+    this.searchSubject.complete();
+  }
+
+  // Configure reactive search with debouncing
+  private setupSearchSubscription() {
+    this.searchSubscription = this.searchSubject.pipe(
+      debounceTime(300), // Wait for user to stop typing
       distinctUntilChanged(), // Only emit if value changed
       switchMap(term => {
         if (term.trim().length === 0) {
+          this.isLoading = false;
           return of([]);
         }
+        this.isLoading = true;
         return this.searchArtworks(term);
       })
-    ).subscribe(results => {
-      console.log('Search results received:', results);
-      console.log('Number of artworks:', results.length);
-      if (results.length > 0) {
-        console.log('First artwork sample:', results[0]);
-        console.log('First artwork objectID:', results[0]?.objectID);
+    ).subscribe({
+      next: (results) => {
+        this.artworks = results;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Search error:', error);
+        this.artworks = [];
+        this.isLoading = false;
       }
-      this.artworks = results;
-      this.isLoading = false;
     });
   }
 
+  // Handle search input changes
   onSearchChange(event: any) {
-    this.searchTerm = event.target.value;
-    if (this.searchTerm.trim().length > 0) {
-      this.isLoading = true;
-    }
+    const newSearchTerm = event.target.value || '';
+    this.searchTerm = newSearchTerm;
     this.searchSubject.next(this.searchTerm);
   }
 
+  // Execute search via API service
   private searchArtworks(term: string): Observable<Artwork[]> {
-    // Use fewer results for more targeted search
-    return this.apiService.searchArtworks(term, 15);
+    return this.apiService.searchArtworks(term, 20);
   }
 
+  // Clear search results and input
   clearSearch() {
     this.searchTerm = '';
     this.artworks = [];
     this.isLoading = false;
+    this.searchSubject.next('');
   }
 }

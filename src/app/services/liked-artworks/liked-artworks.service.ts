@@ -23,17 +23,17 @@ export class LikedArtworksService {
     this.loadLikedArtworks();
   }
 
-  // Get observable of liked artworks
+  // Get reactive stream of liked artworks
   getLikedArtworks(): Observable<LikedArtwork[]> {
     return this.likedArtworksSubject.asObservable();
   }
 
-  // Get current liked artworks array
+  // Get current snapshot of liked artworks
   getCurrentLikedArtworks(): LikedArtwork[] {
     return [...this.likedArtworks];
   }
 
-  // Add artwork to liked list
+  // Add artwork to user's liked collection
   addLikedArtwork(artwork: any): void {
     const existingIndex = this.likedArtworks.findIndex(
       item => item.objectID === artwork.objectID
@@ -54,35 +54,33 @@ export class LikedArtworksService {
       this.likedArtworks.unshift(likedArtwork); // Add to beginning
       this.saveLikedArtworks();
       this.likedArtworksSubject.next([...this.likedArtworks]);
-      console.log('Artwork added to liked list:', likedArtwork);
     }
   }
 
-  // Remove artwork from liked list
+  // Remove artwork from user's liked collection
   removeLikedArtwork(objectID: number): void {
     const index = this.likedArtworks.findIndex(
       item => item.objectID === objectID
     );
 
     if (index !== -1) {
-      const removed = this.likedArtworks.splice(index, 1)[0];
+      this.likedArtworks.splice(index, 1);
       this.saveLikedArtworks();
       this.likedArtworksSubject.next([...this.likedArtworks]);
-      console.log('Artwork removed from liked list:', removed);
     }
   }
 
-  // Check if artwork is liked
+  // Check if artwork is in user's liked collection
   isArtworkLiked(objectID: number): boolean {
     return this.likedArtworks.some(item => item.objectID === objectID);
   }
 
-  // Get count of liked artworks
+  // Get total count of liked artworks
   getLikedCount(): number {
     return this.likedArtworks.length;
   }
 
-  // Load liked artworks from localStorage
+  // Load liked artworks from localStorage on service initialization
   private loadLikedArtworks(): void {
     try {
       const stored = localStorage.getItem('likedArtworksData');
@@ -96,7 +94,7 @@ export class LikedArtworksService {
     }
   }
 
-  // Save liked artworks to localStorage
+  // Persist liked artworks to localStorage
   private saveLikedArtworks(): void {
     try {
       localStorage.setItem('likedArtworksData', JSON.stringify(this.likedArtworks));

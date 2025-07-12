@@ -26,27 +26,27 @@ export class Tab3Page implements OnInit, OnDestroy {
   constructor(private likedArtworksService: LikedArtworksService) {}
 
   ngOnInit() {
-    // Subscribe to liked artworks updates
+    // Subscribe to liked artworks updates for real-time synchronization
     this.subscription = this.likedArtworksService.getLikedArtworks().subscribe(
       (artworks) => {
         this.likedArtworks = artworks;
-        console.log('Liked artworks updated in Tab3:', this.likedArtworks.length);
       }
     );
   }
 
   ngOnDestroy() {
+    // Clean up subscription to prevent memory leaks
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
   }
 
+  // Refresh liked artworks when tab is entered
   ionViewWillEnter() {
-    // This will be called every time the tab is entered
-    console.log('Tab3 entered, liked artworks count:', this.likedArtworks.length);
+    // This ensures the list is current when user switches to this tab
   }
 
-  // TrackBy function for better performance
+  // Optimize rendering performance for large lists
   trackByObjectId(index: number, artwork: LikedArtwork): number {
     return artwork.objectID;
   }

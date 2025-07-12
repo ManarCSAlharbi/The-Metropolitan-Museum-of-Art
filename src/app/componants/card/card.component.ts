@@ -8,6 +8,7 @@ import { addIcons } from 'ionicons';
 import { close, heart, heartOutline } from 'ionicons/icons';
 import { ApiService, Comment, Like } from '../../services/api/api.service';
 import { LikedArtworksService } from '../../services/liked-artworks/liked-artworks.service';
+import { LikeCountService } from '../../services/like-count/like-count.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -28,7 +29,7 @@ import { AlertController } from '@ionic/angular';
 })
 export class CardComponent implements OnInit, OnDestroy {
   
-  @Input() artwork!: any; // objet representing the artwork 
+  @Input() artwork!: any;
   @Input() showRemoveButton: boolean = false; // Show remove button in Tab3
   @ViewChild(IonModal) modal?: IonModal;
   presentingElement: HTMLElement | null = null;
@@ -41,10 +42,12 @@ export class CardComponent implements OnInit, OnDestroy {
     comment: ''
   };
 
+  // Subscriptions for reactive updates
   private likedArtworksSubscription?: Subscription;
-  public justSubmitted: boolean = false; // Flag to track recent submission
+  private likeCountSubscription?: Subscription;
+  public justSubmitted: boolean = false; // Prevents validation errors after form submission
 
-  // Validation states
+  // Form validation state
   validation = {
     username: {
       isValid: true,
@@ -59,6 +62,7 @@ export class CardComponent implements OnInit, OnDestroy {
   constructor(
     private apiService: ApiService, 
     private likedArtworksService: LikedArtworksService,
+    private likeCountService: LikeCountService,
     private alertController: AlertController
   ) {
     addIcons({ close, heart, heartOutline });
@@ -66,19 +70,36 @@ export class CardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.presentingElement = document.querySelector('ion-router-outlet');
-    console.log('CardComponent initialized with artwork:', this.artwork);
+    
+    // Initialize like state from local storage
+    if (this.artwork?.objectID) {
+      this.isLiked = this.likedArtworksService.isArtworkLiked(this.artwork.objectID);
+      
+      // Use cached like count if available
+      if (this.likeCountService.hasLikeCount(this.artwork.objectID)) {
+        this.likes = this.likeCountService.getLikeCount(this.artwork.objectID);
+      }
+    }
+    
+    // Load fresh data from API
     this.loadLikes();
     
-    // Subscribe to liked artworks changes to keep the heart state in sync
+    // Subscribe to liked artworks changes for real-time updates
     this.likedArtworksSubscription = this.likedArtworksService.getLikedArtworks().subscribe(
       (likedArtworks) => {
         if (this.artwork?.objectID) {
-          const wasLiked = this.isLiked;
           this.isLiked = likedArtworks.some(artwork => artwork.objectID === this.artwork.objectID);
-          
-          // Log state change for debugging
-          if (wasLiked !== this.isLiked) {
-            console.log(`Card ${this.artwork.objectID} like state changed: ${wasLiked} -> ${this.isLiked}`);
+        }
+      }
+    );
+
+    // Subscribe to like count changes for real-time synchronization
+    this.likeCountSubscription = this.likeCountService.getLikeCounts().subscribe(
+      (likeCounts) => {
+        if (this.artwork?.objectID && likeCounts.has(this.artwork.objectID)) {
+          const newCount = likeCounts.get(this.artwork.objectID)!;
+          if (this.likes !== newCount) {
+            this.likes = newCount;
           }
         }
       }
@@ -89,15 +110,16 @@ export class CardComponent implements OnInit, OnDestroy {
     if (this.likedArtworksSubscription) {
       this.likedArtworksSubscription.unsubscribe();
     }
+    if (this.likeCountSubscription) {
+      this.likeCountSubscription.unsubscribe();
+    }
   }
 
-  // Load comments when modal opens
+  // Load comments for the artwork modal
   loadComments() {
     if (this.artwork?.objectID) {
-      console.log('Loading comments for artwork ID:', this.artwork.objectID);
       this.apiService.getComments(this.artwork.objectID.toString()).subscribe({
         next: (comments) => {
-          console.log('Comments loaded:', comments);
           this.comments = comments;
         },
         error: (error) => {
@@ -108,32 +130,27 @@ export class CardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Load likes when component initializes
+  // Load like count from API and synchronize services
   loadLikes() {
     if (this.artwork?.objectID) {
-      console.log('Loading likes for artwork ID:', this.artwork.objectID);
       this.apiService.getLikes(this.artwork.objectID.toString()).subscribe({
         next: (likeData) => {
-          console.log('Likes loaded:', likeData);
-          this.likes = likeData.likes || 0;
-          // Check if user has already liked this artwork (you can implement user-specific logic here)
-          this.isLiked = this.checkIfUserLiked(this.artwork.objectID.toString());
+          const newLikeCount = likeData.likes || 0;
+          this.likes = newLikeCount;
+          
+          this.likeCountService.updateLikeCount(this.artwork.objectID, newLikeCount);
+          this.isLiked = this.likedArtworksService.isArtworkLiked(this.artwork.objectID);
         },
         error: (error) => {
           console.error('Error loading likes:', error);
           this.likes = 0;
-          this.isLiked = this.checkIfUserLiked(this.artwork.objectID.toString());
+          this.isLiked = this.likedArtworksService.isArtworkLiked(this.artwork.objectID);
         }
       });
     }
   }
 
-  // Check if user has liked this artwork (using the service)
-  private checkIfUserLiked(itemId: string): boolean {
-    return this.likedArtworksService.isArtworkLiked(parseInt(itemId));
-  }
-
-  // Save user's like status to localStorage (kept for backward compatibility)
+  // Save user's like preference to localStorage for persistence
   private saveUserLike(itemId: string, isLiked: boolean) {
     const likedItems = JSON.parse(localStorage.getItem('likedArtworks') || '[]');
     if (isLiked && !likedItems.includes(itemId)) {
@@ -145,14 +162,12 @@ export class CardComponent implements OnInit, OnDestroy {
     localStorage.setItem('likedArtworks', JSON.stringify(likedItems));
   }
 
-  // Reset the justSubmitted flag when user starts typing
+  // Validate form input as user types
   onUserInput() {
-    // Don't do anything if we just submitted
     if (this.justSubmitted) {
       return;
     }
     
-    // Simple validation - only show errors for fields with content
     if (this.newComment.username.trim().length > 0) {
       this.validateUsername();
     }
@@ -162,18 +177,15 @@ export class CardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Handle when user starts typing after submission
+  // Reset validation state when user starts typing after submission
   onUserStartsTyping() {
-    // Reset the flag when user starts typing new content
     if (this.justSubmitted && (this.newComment.username.length > 0 || this.newComment.comment.length > 0)) {
       this.justSubmitted = false;
     }
     
-    // Call normal validation
     this.onUserInput();
   }
 
-  // Validate username input
   validateUsername() {
     const username = this.newComment.username.trim();
     
@@ -195,7 +207,6 @@ export class CardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Validate comment input
   validateComment() {
     const comment = this.newComment.comment.trim();
     
@@ -214,34 +225,34 @@ export class CardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Validate all fields
   validateAllFields(): boolean {
     this.validateUsername();
     this.validateComment();
     return this.validation.username.isValid && this.validation.comment.isValid;
   }
 
-  // Toggle like/unlike
+  // Toggle like state and update global like count
   toggleLike() {
     if (this.artwork?.objectID) {
-      // Store current state for potential revert
+      // Store previous state for rollback on error
       const previousLikedState = this.isLiked;
       const previousLikeCount = this.likes;
       
-      // Optimistic update - update UI immediately
+      // Optimistic update for immediate UI feedback
       this.isLiked = !this.isLiked;
-      this.likes = this.isLiked ? this.likes + 1 : this.likes - 1;
+      this.likes = this.isLiked ? this.likes + 1 : Math.max(0, this.likes - 1);
       
-      // Save the like state to localStorage immediately (backward compatibility)
+      // Update all services immediately
+      this.likeCountService.updateLikeCount(this.artwork.objectID, this.likes);
       this.saveUserLike(this.artwork.objectID.toString(), this.isLiked);
       
-      // Add or remove from liked artworks service
       if (this.isLiked) {
         this.likedArtworksService.addLikedArtwork(this.artwork);
       } else {
         this.likedArtworksService.removeLikedArtwork(this.artwork.objectID);
       }
       
+      // Sync with API
       const likeData: Like = {
         item_id: this.artwork.objectID.toString(),
         likes: this.likes
@@ -249,24 +260,19 @@ export class CardComponent implements OnInit, OnDestroy {
 
       this.apiService.postLike(likeData).subscribe({
         next: (response) => {
-          console.log('Like toggled successfully:', response);
-          console.log('Current state - isLiked:', this.isLiked, 'likes:', this.likes);
-          // Like state is already saved, no need to revert
+          if (response && typeof response.likes === 'number') {
+            this.likes = response.likes;
+            this.likeCountService.updateLikeCount(this.artwork.objectID, this.likes);
+          }
         },
         error: (error) => {
           console.error('Error toggling like:', error);
-          console.error('Error details:', {
-            status: error.status,
-            statusText: error.statusText,
-            message: error.message,
-            ok: error.ok
-          });
-          // Revert optimistic update on error
+          // Rollback all changes on error
           this.isLiked = previousLikedState;
           this.likes = previousLikeCount;
-          // Revert localStorage as well
+          this.likeCountService.updateLikeCount(this.artwork.objectID, this.likes);
           this.saveUserLike(this.artwork.objectID.toString(), this.isLiked);
-          // Revert liked artworks service
+          
           if (previousLikedState) {
             this.likedArtworksService.addLikedArtwork(this.artwork);
           } else {
@@ -277,7 +283,7 @@ export class CardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Remove artwork from liked list (for Tab3) - with confirmation
+  // Remove artwork from user's liked list (Tab3 only)
   async removeFromLiked() {
     if (!this.artwork?.objectID) return;
 
@@ -291,10 +297,7 @@ export class CardComponent implements OnInit, OnDestroy {
         {
           text: 'Cancel',
           role: 'cancel',
-          cssClass: 'secondary',
-          handler: () => {
-            console.log('User cancelled removal');
-          }
+          cssClass: 'secondary'
         },
         {
           text: 'Yes, Remove',
@@ -309,57 +312,32 @@ export class CardComponent implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  // Actually remove the artwork after confirmation
+  // Execute removal after user confirmation
   private confirmRemoveFromLiked() {
     if (this.artwork?.objectID) {
-      // Remove from liked artworks service
       this.likedArtworksService.removeLikedArtwork(this.artwork.objectID);
-      
-      // Update local state
       this.isLiked = false;
-      if (this.likes > 0) {
-        this.likes--;
-      }
-      
-      // Update localStorage for backward compatibility
       this.saveUserLike(this.artwork.objectID.toString(), false);
-      
-      // Send API request to update likes count
-      const likeData: Like = {
-        item_id: this.artwork.objectID.toString(),
-        likes: this.likes
-      };
-
-      this.apiService.postLike(likeData).subscribe({
-        next: (response) => {
-          console.log('Artwork removed from liked list successfully:', response);
-        },
-        error: (error) => {
-          console.error('Error removing artwork from liked list:', error);
-        }
-      });
+      this.loadLikes(); // Reload to show actual global count
     }
   }
 
-  // Add a new comment
+  // Add new comment with validation
+  // Add new comment with validation
   addComment() {
-    // Check if fields have content without affecting validation state
     const username = this.newComment.username.trim();
     const comment = this.newComment.comment.trim();
     
-    // Simple validation without setting validation state
+    // Quick validation before submission
     if (!username || username.length < 2 || username.length > 50) {
-      console.log('Username validation failed');
       return;
     }
     
     if (!comment || comment.length < 3 || comment.length > 500) {
-      console.log('Comment validation failed');
       return;
     }
     
     if (!/^[a-zA-Z0-9\s._-]+$/.test(username)) {
-      console.log('Username contains invalid characters');
       return;
     }
 
@@ -373,22 +351,15 @@ export class CardComponent implements OnInit, OnDestroy {
     this.apiService.postComment(commentData).subscribe({
       next: (comment) => {
         this.comments.push(comment);
-        
-        // Set flag to prevent validation errors on empty fields
         this.justSubmitted = true;
-        
-        // Clear the form
         this.newComment = { username: '', comment: '' };
         
-        // Reset validation to valid state
+        // Reset validation state
         this.validation = {
           username: { isValid: true, errorMessage: '' },
           comment: { isValid: true, errorMessage: '' }
         };
         
-        console.log('Comment added successfully:', comment);
-        
-        // Reset flag after 1 second
         setTimeout(() => {
           this.justSubmitted = false;
         }, 1000);
@@ -399,7 +370,7 @@ export class CardComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Close modals dispatched by the button triggers
+  // Modal management methods
   dismissModal(event: Event) {
     const modal = (event.target as HTMLElement).closest('ion-modal') as HTMLIonModalElement;
     modal.dismiss();
@@ -409,24 +380,16 @@ export class CardComponent implements OnInit, OnDestroy {
     if (this.artwork?.objectID) {
       return `open-modal-${this.artwork.objectID}`;
     }
-    // Fallback for artworks without objectID
     const safeTitle = this.artwork?.title?.replace(/[^a-zA-Z0-9]/g, '-') || 'unknown';
     return `open-modal-${safeTitle}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   openModal() {
-    console.log('Opening modal for artwork:', this.artwork);
-    console.log('Modal element:', this.modal);
-    console.log('Modal ID:', this.getModalId());
-    
     if (this.modal) {
       this.modal.present();
     } else {
-      console.error('Modal not found! Check if ViewChild is working properly.');
-      // Fallback: try to present modal directly
       setTimeout(() => {
         if (this.modal) {
-          console.log('Modal found after timeout, presenting...');
           this.modal.present();
         }
       }, 100);

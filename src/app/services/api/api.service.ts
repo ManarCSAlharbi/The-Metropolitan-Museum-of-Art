@@ -26,18 +26,19 @@ export interface Like {
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-private apiUrl = 'https://collectionapi.metmuseum.org/public/collection/v1';
-private commentsUrl = 'https://us-central1-involvement-api.cloudfunctions.net/capstoneApi/apps/pKSoTbGzFhj5RtoeFQif/comments';
-private likesUrl = 'https://us-central1-involvement-api.cloudfunctions.net/capstoneApi/apps/pKSoTbGzFhj5RtoeFQif/likes';
+  private apiUrl = 'https://collectionapi.metmuseum.org/public/collection/v1';
+  private commentsUrl = 'https://us-central1-involvement-api.cloudfunctions.net/capstoneApi/apps/pKSoTbGzFhj5RtoeFQif/comments';
+  private likesUrl = 'https://us-central1-involvement-api.cloudfunctions.net/capstoneApi/apps/pKSoTbGzFhj5RtoeFQif/likes';
 
   constructor(private http: HttpClient) {}
+
+  // Get random batch of artworks for home page
   getArtworks(batchSize: number = 10): Observable<Artwork[]> {
     const params = '?q=painting&hasImages=true';
     return this.http
       .get<{ objectIDs: number[] }>(`${this.apiUrl}/search${params}`)
       .pipe(
         map(res => {
-          // Shuffle IDs and pick a batch
           const shuffled = res.objectIDs.sort(() => Math.random() - 0.5);
           return shuffled.slice(0, batchSize);
         }),
@@ -48,125 +49,137 @@ private likesUrl = 'https://us-central1-involvement-api.cloudfunctions.net/capst
       );
   }
 
+  // Search artworks with smart ranking
   searchArtworks(query: string, limit: number = 20): Observable<Artwork[]> {
     if (!query.trim()) {
       return of([]);
     }
     
-    const params = `?q=${encodeURIComponent(query)}&hasImages=true`;
+    // Get results from API and filter them to show only relevant matches
+    return this.performSingleSearch(query, limit * 3).pipe(
+      map(results => {
+        // Filter results to only show artworks that actually match the search query
+        const relevantResults = this.filterRelevantResults(results, query);
+        return relevantResults.slice(0, limit);
+      }),
+      catchError(error => {
+        console.error('Search error:', error);
+        return of([]);
+      })
+    );
+  }
+
+  // Filter results to only show artworks that actually match the search query
+  private filterRelevantResults(artworks: Artwork[], query: string): Artwork[] {
+    const queryLower = query.toLowerCase().trim();
+    
+    if (queryLower.length === 0) {
+      return artworks;
+    }
+    
+    // Split query into words for better matching
+    const queryWords = queryLower.split(/\s+/).filter(word => word.length >= 2);
+    
+    return artworks.filter(artwork => {
+      const title = (artwork.title || '').toLowerCase();
+      const artist = (artwork.artistDisplayName || '').toLowerCase();
+      const department = ((artwork as any).department || '').toLowerCase();
+      const objectName = ((artwork as any).objectName || '').toLowerCase();
+      const culture = ((artwork as any).culture || '').toLowerCase();
+      const medium = ((artwork as any).medium || '').toLowerCase();
+      
+      // Check if any field contains the full query
+      const fullQueryMatch = 
+        title.includes(queryLower) ||
+        artist.includes(queryLower) ||
+        department.includes(queryLower) ||
+        objectName.includes(queryLower) ||
+        culture.includes(queryLower) ||
+        medium.includes(queryLower);
+      
+      // Check if any field contains all query words
+      const allWordsMatch = queryWords.every(word => 
+        title.includes(word) ||
+        artist.includes(word) ||
+        department.includes(word) ||
+        objectName.includes(word) ||
+        culture.includes(word) ||
+        medium.includes(word)
+      );
+      
+      // Return true only if there's a meaningful match
+      return fullQueryMatch || allWordsMatch;
+    }).sort((a, b) => {
+      // Sort by relevance - exact matches first
+      const aTitle = (a.title || '').toLowerCase();
+      const bTitle = (b.title || '').toLowerCase();
+      const aArtist = (a.artistDisplayName || '').toLowerCase();
+      const bArtist = (b.artistDisplayName || '').toLowerCase();
+      
+      // Priority: exact title match > title contains > artist contains
+      if (aTitle === queryLower) return -1;
+      if (bTitle === queryLower) return 1;
+      if (aTitle.includes(queryLower) && !bTitle.includes(queryLower)) return -1;
+      if (bTitle.includes(queryLower) && !aTitle.includes(queryLower)) return 1;
+      if (aArtist.includes(queryLower) && !bArtist.includes(queryLower)) return -1;
+      if (bArtist.includes(queryLower) && !aArtist.includes(queryLower)) return 1;
+      
+      return 0;
+    });
+  }
+
+  // Get individual artwork details by ID
+  getArtworkById(id: number): Observable<Artwork> {
+    return this.http.get<Artwork>(`${this.apiUrl}/objects/${id}`);
+  }
+
+  // Perform single search API call with caching prevention
+  private performSingleSearch(searchTerm: string, limit: number): Observable<Artwork[]> {
+    const params = `?q=${encodeURIComponent(searchTerm)}&hasImages=true`;
+    
     return this.http
-      .get<{ objectIDs: number[] }>(`${this.apiUrl}/search${params}`)
+      .get<{ objectIDs: number[] }>(`${this.apiUrl}/search${params}&_t=${Date.now()}`)
       .pipe(
         map(res => {
-          if (!res.objectIDs || res.objectIDs.length === 0) {
+          if (!res || !res.objectIDs || res.objectIDs.length === 0) {
             return [];
           }
-          // Limit results for better performance
-          return res.objectIDs.slice(0, limit);
+          // Get more IDs to have a better selection after filtering
+          return res.objectIDs.slice(0, Math.min(limit, 80));
         }),
         switchMap(ids => {
           if (ids.length === 0) {
             return of([]);
           }
+          
           return from(ids).pipe(
             mergeMap(id => this.getArtworkById(id).pipe(
-              catchError(() => of(null)) // Handle individual artwork fetch errors
-            )),
-            filter((artwork: Artwork | null): artwork is Artwork => 
-              artwork !== null && Boolean(artwork.primaryImageSmall || artwork.primaryImage)
-            ),
-            toArray(),
-            map(artworks => this.filterRelevantArtworks(artworks, query))
+              catchError((error) => {
+                return of(null);
+              })
+            ), 8), // Increase concurrent requests for better performance
+            filter((artwork: Artwork | null): artwork is Artwork => {
+              return artwork !== null && Boolean(artwork.primaryImageSmall || artwork.primaryImage);
+            }),
+            toArray()
           );
         }),
         catchError(error => {
-          console.error('Search error:', error);
+          console.error(`Search error for "${searchTerm}":`, error);
           return of([]);
         })
       );
   }
 
-  private filterRelevantArtworks(artworks: Artwork[], query: string): Artwork[] {
-    const queryLower = query.toLowerCase().trim();
-    const queryWords = queryLower.split(/\s+/);
-    
-    // Score each artwork based on relevance
-    const scoredArtworks = artworks.map(artwork => {
-      let score = 0;
-      const title = (artwork.title || '').toLowerCase();
-      const artist = (artwork.artistDisplayName || '').toLowerCase();
-      const combined = `${title} ${artist}`;
-      
-      // Exact title match gets highest score
-      if (title === queryLower) {
-        score += 100;
-      }
-      // Exact artist match gets high score
-      else if (artist === queryLower) {
-        score += 90;
-      }
-      // Title contains exact query gets high score
-      else if (title.includes(queryLower)) {
-        score += 80;
-      }
-      // Artist contains exact query gets good score
-      else if (artist.includes(queryLower)) {
-        score += 70;
-      }
-      // Check for all query words in title/artist
-      else {
-        const titleWords = title.split(/\s+/);
-        const artistWords = artist.split(/\s+/);
-        let wordMatches = 0;
-        
-        queryWords.forEach(queryWord => {
-          if (queryWord.length > 2) { // Only consider words longer than 2 characters
-            if (titleWords.some(word => word.includes(queryWord))) {
-              wordMatches += 10;
-            }
-            if (artistWords.some(word => word.includes(queryWord))) {
-              wordMatches += 8;
-            }
-          }
-        });
-        score += wordMatches;
-      }
-      
-      return { artwork, score };
-    });
-    
-    // Filter artworks with score > 0 and sort by score (highest first)
-    const relevantArtworks = scoredArtworks
-      .filter(item => item.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .map(item => item.artwork);
-    
-    // If we have high-scoring matches (exact or very close), return only those
-    const highScoreArtworks = scoredArtworks
-      .filter(item => item.score >= 70)
-      .sort((a, b) => b.score - a.score)
-      .map(item => item.artwork);
-    
-    if (highScoreArtworks.length > 0) {
-      return highScoreArtworks.slice(0, 5); // Return top 5 high-scoring matches
-    }
-    
-    // Otherwise return all relevant matches
-    return relevantArtworks.slice(0, 10); // Return top 10 relevant matches
-  }
-
-  getArtworkById(id: number): Observable<Artwork> {
-    return this.http.get<Artwork>(`${this.apiUrl}/objects/${id}`);
-  }
-
+  // Comments API methods
   getComments(itemId: string): Observable<Comment[]> {
     return this.http.get<Comment[]>(`${this.commentsUrl}?item_id=${itemId}`);
   }
 
+  // Likes API methods
   getLikes(itemId: string): Observable<Like> {
     return this.http.get<Like[]>(`${this.likesUrl}?item_id=${itemId}`).pipe(
       map(likes => {
-        // Find the like for this specific item
         const itemLike = likes.find(like => like.item_id === itemId);
         return itemLike || { item_id: itemId, likes: 0 };
       })
@@ -176,24 +189,22 @@ private likesUrl = 'https://us-central1-involvement-api.cloudfunctions.net/capst
   postLike(likeData: Like): Observable<Like> {
     return this.http.post<Like>(this.likesUrl, likeData).pipe(
       catchError((error: HttpErrorResponse) => {
-        // If the status is 201 (Created), treat it as success
+        // Handle 201 status as success (API quirk)
         if (error.status === 201) {
-          console.log('Like posted successfully with status 201');
-          return of(likeData); // Return the original data as success
+          return of(likeData);
         }
-        // For other errors, re-throw them
         throw error;
       })
     );
   }
 
+  // Comments API methods
   postComment(commentData: Comment): Observable<Comment> {
     return this.http.post<Comment>(this.commentsUrl, commentData).pipe(
       catchError((error: HttpErrorResponse) => {
-        // If the status is 201 (Created), treat it as success
+        // Handle 201 status as success (API quirk)
         if (error.status === 201) {
-          console.log('Comment posted successfully with status 201');
-          return of(commentData); // Return the original data as success
+          return of(commentData);
         }
         // For other errors, re-throw them
         throw error;
