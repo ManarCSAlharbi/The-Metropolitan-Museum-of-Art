@@ -74,44 +74,116 @@ export class ApiService {
   private filterRelevantResults(artworks: Artwork[], query: string): Artwork[] {
     const queryLower = query.toLowerCase().trim();
     
-    if (queryLower.length === 0) { // if query is empty, return all artworks
+    if (queryLower.length === 0) {
       return artworks;
     }
     
-    // Split query into words for better matching
-    // Splits query on any whitespace (spaces, tabs, etc.), Van Gogh" becomes ["van", "gogh"]
     const queryWords = queryLower.split(/\s+/).filter(word => word.length >= 2);
     
     return artworks.filter(artwork => {
-      const title = (artwork.title || '').toLowerCase();
-      const artist = (artwork.artistDisplayName || '').toLowerCase();
-      const department = ((artwork as any).department || '').toLowerCase();
-      const objectName = ((artwork as any).objectName || '').toLowerCase();
-      const culture = ((artwork as any).culture || '').toLowerCase();
-      const medium = ((artwork as any).medium || '').toLowerCase();
+      // Extract all searchable fields from artwork
+      const searchableFields = [
+        artwork.title || '',
+        (artwork as any).primaryImageSmall || '',
+        (artwork as any).primaryImage || '',
+        artwork.artistDisplayName || '',
+        (artwork as any).department || '',
+        (artwork as any).objectName || '',  
+        (artwork as any).culture || '',
+        (artwork as any).medium || '',
+        (artwork as any).GalleryNumber || '',
+        (artwork as any).accessionNumber || '',
+        (artwork as any).accessionYear || '',
+        (artwork as any).artistAlphaSort || '',
+        (artwork as any).artistBeginDate || '',
+        (artwork as any).artistDisplayBio || '',
+        (artwork as any).artistEndDate || '',
+        (artwork as any).artistGender || '',
+        (artwork as any).artistNationality || '',
+        (artwork as any).artistPrefix || '',
+        (artwork as any).artistRole || '',
+        (artwork as any).artistSuffix || '',
+        (artwork as any).city || '',
+        (artwork as any).classification || '',
+        (artwork as any).country || '',
+        (artwork as any).county || '',
+        (artwork as any).creditLine || '',
+        (artwork as any).dimensions || '',
+        (artwork as any).dynasty || '',
+        (artwork as any).excavation || '',
+        (artwork as any).geographyType || '',
+        (artwork as any).linkResource || '',
+        (artwork as any).locale || '',
+        (artwork as any).locus || '',
+        (artwork as any).objectDate || '',
+        (artwork as any).objectBeginDate || '',
+        (artwork as any).objectEndDate || '',
+        (artwork as any).period || '',
+        (artwork as any).portfolio || '',
+        (artwork as any).region || '',
+        (artwork as any).reign || '',
+        (artwork as any).repository || '',
+        (artwork as any).rightsAndReproduction || '',
+        (artwork as any).river || '',
+        (artwork as any).state || '',
+        (artwork as any).subregion || ''
+      ];
+      
+      // Handle array fields
+      const additionalImages = (artwork as any).additionalImages || [];
+      const tags = (artwork as any).tags || [];
+      const constituents = (artwork as any).constituents || [];
+      const measurements = (artwork as any).measurements || [];
+      
+      // Add array contents to searchable fields
+      additionalImages.forEach((img: string) => searchableFields.push(img));
+      
+      // Handle tags array
+      if (Array.isArray(tags)) {
+        tags.forEach((tag: any) => {
+          if (typeof tag === 'string') {
+            searchableFields.push(tag);
+          } else if (tag && tag.term) {
+            searchableFields.push(tag.term);
+          }
+        });
+      }
+      
+      // Handle constituents array
+      if (Array.isArray(constituents)) {
+        constituents.forEach((constituent: any) => {
+          if (constituent) {
+            searchableFields.push(constituent.name || '');
+            searchableFields.push(constituent.role || '');
+          }
+        });
+      }
+      
+      // Handle measurements array
+      if (Array.isArray(measurements)) {
+        measurements.forEach((measurement: any) => {
+          if (measurement) {
+            searchableFields.push(measurement.elementName || '');
+            searchableFields.push(measurement.elementDescription || '');
+            if (measurement.elementMeasurements) {
+              searchableFields.push(measurement.elementMeasurements.Height?.toString() || '');
+              searchableFields.push(measurement.elementMeasurements.Width?.toString() || '');
+              searchableFields.push(measurement.elementMeasurements.Depth?.toString() || '');
+            }
+          }
+        });
+      }
+      
+      // Convert all fields to lowercase for searching
+      const searchableText = searchableFields.join(' ').toLowerCase();
       
       // Check if any field contains the full query
-      // Example: "van gogh" - checks if "van gogh" is present in any field
-      const fullQueryMatch = 
-        title.includes(queryLower) ||
-        artist.includes(queryLower) ||
-        department.includes(queryLower) ||
-        objectName.includes(queryLower) ||
-        culture.includes(queryLower) ||
-        medium.includes(queryLower);
+      const fullQueryMatch = searchableText.includes(queryLower);
       
       // Check if any field contains all query words
-      // Example: "van gogh" - checks if both "van" and "gogh" are present in any field
-      const allWordsMatch = queryWords.every(word => 
-        title.includes(word) ||
-        artist.includes(word) ||
-        department.includes(word) ||
-        objectName.includes(word) ||
-        culture.includes(word) ||
-        medium.includes(word)
-      );
+      const allWordsMatch = queryWords.every(word => searchableText.includes(word));
       
-      // Return true only if there's a meaningful match
+      // Return true if there's a meaningful match
       return fullQueryMatch || allWordsMatch;
     }).sort((a, b) => {
       // Sort by relevance - exact matches first
@@ -128,7 +200,7 @@ export class ApiService {
       if (aArtist.includes(queryLower) && !bArtist.includes(queryLower)) return -1;
       if (bArtist.includes(queryLower) && !aArtist.includes(queryLower)) return 1;
       
-      return 0; // No change in order if no specific match found
+      return 0;
     });
   }
 
