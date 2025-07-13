@@ -184,12 +184,11 @@ ion-content {
 }
 
 ion-content img {
-  width: 100%; // Ensure the image takes full width of the modal
-  height: 45%; // Ensure the image takes full height of the modal
-  border-radius: 12px;
-  margin-bottom: 16px;
-  object-fit: cover; // Ensure the image covers the area without distortion
-}
+  width: 100%;
+    height: auto; // 
+    margin-bottom: 12px;
+    border-radius: 12px;
+    object-fit: cover;}
 
 ion-title {
   font-size: 1.4rem;
