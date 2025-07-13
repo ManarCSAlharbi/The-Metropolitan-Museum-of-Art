@@ -35,8 +35,11 @@ export class CardComponent implements OnInit, OnDestroy {
   @ViewChild(IonModal) modal?: IonModal;
 
   comments: Comment[] = [];
+
+// 1L - State Storage and Initialization for lilkes
   likes: number = 0;
   isLiked: boolean = false;
+
   newComment = {
     username: '',
     comment: ''
@@ -45,10 +48,13 @@ export class CardComponent implements OnInit, OnDestroy {
   // Subscriptions for reactive updates
   private likedArtworksSubscription?: Subscription;
   private likeCountSubscription?: Subscription;
+
+  // 1c- Two boolean flags control the visual feedback:
   public justSubmitted: boolean = false; // Prevents validation errors after form submission
   public isResetState: boolean = true; // Tracks if form is in reset/default state
 
-  // Form validation state
+  // 1c- Form validation state
+  // state object to track the validity of each field
   validation = {
     username: {
       isValid: true,
@@ -71,7 +77,7 @@ export class CardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Initialize like state from local storage
+    //1L - Initialize like state from local storage
     if (this.artwork?.objectID) {
       this.isLiked = this.likedArtworksService.isArtworkLiked(this.artwork.objectID);
       
@@ -185,8 +191,9 @@ export class CardComponent implements OnInit, OnDestroy {
     localStorage.setItem('likedArtworks', JSON.stringify(likedItems));
   }
 
-  // Validate form input as user types
+  // 4c- Real-time Validation: Validate form input as user types
   onUserInput() {
+    // If just submitted, skip validation to avoid errors
     if (this.justSubmitted) {
       return;
     }
@@ -200,21 +207,25 @@ export class CardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Reset validation state when user starts typing after submission
+  // 3c- Reset validation state when user starts typing after submission
   onUserStartsTyping() {
-    // Don't exit reset state immediately if just submitted
+    
     if (this.justSubmitted) {
       // Still in submission state, keep gray color
       return;
     }
     
-    this.isResetState = false; // User is now typing, exit reset state
+    this.isResetState = false; // User is now typing, exit initial state Signals that user is no longer in the initial/default state
+                               //Allows validation colors to start working (red/green feedback)
+
     
+    // If just submitted and user starts typing, reset the state 
     if (this.justSubmitted && (this.newComment.username.length > 0 || this.newComment.comment.length > 0)) {
       this.justSubmitted = false;
     }
     
-    this.onUserInput();
+    this.onUserInput();//Calls the real-time validation method
+                       //starts the validation process for the current input
   }
 
   validateUsername() {
@@ -226,9 +237,9 @@ export class CardComponent implements OnInit, OnDestroy {
     } else if (username.length < 2) {
       this.validation.username.isValid = false;
       this.validation.username.errorMessage = 'Name must be at least 2 characters long';
-    } else if (username.length > 50) {
+    } else if (username.length > 20) {
       this.validation.username.isValid = false;
-      this.validation.username.errorMessage = 'Name cannot exceed 50 characters';
+      this.validation.username.errorMessage = 'Name cannot exceed 20 characters';
     } else if (!/^[a-zA-Z0-9\s._-]+$/.test(username)) {
       this.validation.username.isValid = false;
       this.validation.username.errorMessage = 'Name can only contain letters, numbers, spaces, dots, hyphens, and underscores';
@@ -256,13 +267,8 @@ export class CardComponent implements OnInit, OnDestroy {
     }
   }
 
-  validateAllFields(): boolean {
-    this.validateUsername();
-    this.validateComment();
-    return this.validation.username.isValid && this.validation.comment.isValid;
-  }
 
-  // Toggle like state and update global like count
+  // 2L- Toggle like state and update global like count
   toggleLike() {
     if (this.artwork?.objectID) {
       // Store previous state for rollback on error
@@ -466,23 +472,25 @@ export class CardComponent implements OnInit, OnDestroy {
     }
   }
 
+  //2c- Helper method to get validation CSS class
   // Helper method to get validation CSS class
-  getValidationClass(field: 'username' | 'comment'): string {
+  getValidationClass(field: 'username' | 'comment'): string { 
     // If just submitted, always return gray
     if (this.justSubmitted) {
       return 'force-gray';
     }
     
-    // If reset state or empty, return gray
+    
+    // Default state or when field is empty return gray
     if (this.isResetState || this.newComment[field].trim().length === 0) {
       return 'force-gray';
     }
     
     // Check validation state
     if (!this.validation[field].isValid) {
-      return 'invalid-state';
+      return 'invalid-state'; // When user input is invalid
     }
     
-    return 'valid-state';
+    return 'valid-state'; // When user input is valid
   }
 }

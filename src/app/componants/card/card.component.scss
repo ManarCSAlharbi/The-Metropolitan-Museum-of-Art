@@ -212,14 +212,21 @@ ion-card-subtitle {
   width: 100%;
   fill:outline;
   margin-top: 16px;
+  margin-bottom: 16px;
+    
+
+
   
 }
 
 .comment-form ion-input,
 .comment-form ion-textarea {
+      --fill: otline;
+      --border-color:#6d6262;
+    --color: #333333;
+    --placeholder-color: #999999;
   margin: 12px;
   text-align: left; // apply this as well
-  fill: outline; 
   padding: 10px;
   
 }
@@ -314,24 +321,28 @@ ion-modal {
     margin-bottom: 16px;
     
     // Default rest state - gray
-    --border-color: #cccccc;
+    --fill: otline;
+      --border-color:#6d6262;
     --color: #333333;
     --placeholder-color: #999999;
     
     &.ion-invalid {
+      --fill: otline;
       --border-color: #ff4444;
       --color: #ff4444;
       --placeholder-color: #ff9999;
     }
     
     &.ion-valid {
+      --fill: otline;
       --border-color: #28a745;
       --color: #28a745;
     }
     
     // Force gray state
     &.force-gray {
-      --border-color: #cccccc;
+      fill: otline;
+      --border-color:#6d6262;
       --color: #333333;
       --placeholder-color: #999999;
     }
