@@ -49,13 +49,14 @@ export class ApiService {
       );
   }
 
-  // Search artworks with smart ranking
+  // 1S - method to Prevents unnecessary API calls for empty searches
   searchArtworks(query: string, limit: number = 20): Observable<Artwork[]> {
-    if (!query.trim()) {
-      return of([]);
+    if (!query.trim()) { // Checks if search query is empty after removing whitespace
+      return of([]); // Return empty array if query is empty
     }
     
     // Get results from API and filter them to show only relevant matches
+    // Calls the actual API search method
     return this.performSingleSearch(query, limit * 3).pipe(
       map(results => {
         // Filter results to only show artworks that actually match the search query
@@ -73,11 +74,12 @@ export class ApiService {
   private filterRelevantResults(artworks: Artwork[], query: string): Artwork[] {
     const queryLower = query.toLowerCase().trim();
     
-    if (queryLower.length === 0) {
+    if (queryLower.length === 0) { // if query is empty, return all artworks
       return artworks;
     }
     
     // Split query into words for better matching
+    // Splits query on any whitespace (spaces, tabs, etc.), Van Gogh" becomes ["van", "gogh"]
     const queryWords = queryLower.split(/\s+/).filter(word => word.length >= 2);
     
     return artworks.filter(artwork => {
@@ -89,6 +91,7 @@ export class ApiService {
       const medium = ((artwork as any).medium || '').toLowerCase();
       
       // Check if any field contains the full query
+      // Example: "van gogh" - checks if "van gogh" is present in any field
       const fullQueryMatch = 
         title.includes(queryLower) ||
         artist.includes(queryLower) ||
@@ -98,6 +101,7 @@ export class ApiService {
         medium.includes(queryLower);
       
       // Check if any field contains all query words
+      // Example: "van gogh" - checks if both "van" and "gogh" are present in any field
       const allWordsMatch = queryWords.every(word => 
         title.includes(word) ||
         artist.includes(word) ||
@@ -124,7 +128,7 @@ export class ApiService {
       if (aArtist.includes(queryLower) && !bArtist.includes(queryLower)) return -1;
       if (bArtist.includes(queryLower) && !aArtist.includes(queryLower)) return 1;
       
-      return 0;
+      return 0; // No change in order if no specific match found
     });
   }
 

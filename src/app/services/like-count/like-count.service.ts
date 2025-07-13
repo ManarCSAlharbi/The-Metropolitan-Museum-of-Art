@@ -36,9 +36,5 @@ export class LikeCountService {
     return this.likeCounts.has(objectID);
   }
 
-  // Reset all like counts (for testing/cleanup)
-  clearAllLikeCounts(): void {
-    this.likeCounts.clear();
-    this.likeCountsSubject.next(new Map());
-  }
+  
 }

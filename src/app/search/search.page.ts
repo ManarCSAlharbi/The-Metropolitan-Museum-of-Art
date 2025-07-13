@@ -18,12 +18,12 @@ import { Observable, Subject, switchMap, debounceTime, distinctUntilChanged, of,
   ]
 })
 export class SearchPage implements OnInit, OnDestroy { // Changed from Tab2Page to SearchPage
-  searchTerm: string = '';
-  artworks: Artwork[] = [];
-  isLoading: boolean = false;
+  searchTerm: string = '';   // Current search input
+  artworks: Artwork[] = []; // Search results
+  isLoading: boolean = false; // Loading state
   
   // Search management
-  private searchSubject = new Subject<string>();
+  private searchSubject = new Subject<string>(); // RxJS subject for reactive search
   private searchSubscription?: Subscription;
 
   constructor(private apiService: ApiService) {}
@@ -42,39 +42,47 @@ export class SearchPage implements OnInit, OnDestroy { // Changed from Tab2Page 
   // Configure reactive search with debouncing
   private setupSearchSubscription() {
     this.searchSubscription = this.searchSubject.pipe(
-      debounceTime(300), // Wait for user to stop typing
-      distinctUntilChanged(), // Only emit if value changed
+      debounceTime(300), // Wait for user to stop typing 
+      // Example: User types "Van Gogh" - only searches after they stop typing for 300ms
+      distinctUntilChanged(), // Only emit if value changed 
+      // If user types "Van", deletes it, then types "Van" again - skips the duplicate
       switchMap(term => {
+        // If search term is empty, reset state
         if (term.trim().length === 0) {
-          this.isLoading = false;
-          return of([]);
+          this.isLoading = false; // Turns off loading spinner
+          return of([]); // Return empty array to clear results
         }
-        this.isLoading = true;
-        return this.searchArtworks(term);
+        this.isLoading = true; //otherwise turns on loading spinner
+        return this.searchArtworks(term); 
+        
       })
-    ).subscribe({
+    ).subscribe({ //starts the pipeline and handles results
       next: (results) => {
-        this.artworks = results;
-        this.isLoading = false;
+        // Handler for successful API responses
+        this.artworks = results; // Updates the UI with search results
+        this.isLoading = false; // Hides loading spinner
       },
       error: (error) => {
+        // Handle Search Error
         console.error('Search error:', error);
-        this.artworks = [];
-        this.isLoading = false;
+        this.artworks = []; // Clear results on error
+        this.isLoading = false; // Hides loading spinner
       }
     });
   }
 
   // Handle search input changes
   onSearchChange(event: any) {
-    const newSearchTerm = event.target.value || '';
-    this.searchTerm = newSearchTerm;
-    this.searchSubject.next(this.searchTerm);
+    const newSearchTerm = event.target.value || '';  //Extract Search Value (input, ex="van Gogh")
+    this.searchTerm = newSearchTerm; // store extracted value in searchTerm (input, ex="van Gogh")
+    this.searchSubject.next(this.searchTerm); // Emit new search term to trigger search --API call
   }
 
   // Execute search via API service
+  // This method calls the API service to search artworks based on the term
   private searchArtworks(term: string): Observable<Artwork[]> {
-    return this.apiService.searchArtworks(term, 20);
+    return this.apiService.searchArtworks(term, 20); // CALL the API service to search artworks 
+    // with a limit of 20 results
   }
 
   // Clear search results and input

@@ -269,7 +269,43 @@ export class CardComponent implements OnInit, OnDestroy {
 
 
   // 2L- Toggle like state and update global like count
-  toggleLike() {
+  async toggleLike() {
+    if (this.artwork?.objectID) {
+      // If user is trying to unlike from home page, show confirmation alert
+      if (this.isLiked && !this.showRemoveButton) {
+        const artworkTitle = this.artwork.title || 'this artwork';
+        const artistName = this.artwork.artistDisplayName || 'Unknown Artist';
+        
+        const alert = await this.alertController.create({
+          header: 'Remove from Liked Artworks',
+          message: `Are you sure you want to remove "${artworkTitle}" by ${artistName} from your liked artworks?`,
+          buttons: [
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary'
+            },
+            {
+              text: 'Yes, Remove',
+              cssClass: 'danger',
+              handler: () => {
+                this.performToggleLike();
+              }
+            }
+          ]
+        });
+
+        await alert.present();
+        return;
+      }
+
+      // If liking or using remove button, proceed directly
+      this.performToggleLike();
+    }
+  }
+
+  // Separated logic for actual like/unlike operation
+  private performToggleLike() {
     if (this.artwork?.objectID) {
       // Store previous state for rollback on error
       const previousLikedState = this.isLiked;
@@ -277,11 +313,16 @@ export class CardComponent implements OnInit, OnDestroy {
       
       // Optimistic update for immediate UI feedback
       this.isLiked = !this.isLiked;
-      this.likes = this.isLiked ? this.likes + 1 : Math.max(0, this.likes - 1);
       
-      // Update all services immediately
+      // Only increase like count when liking, don't decrease when unliking
+      if (this.isLiked) {
+        this.likes = this.likes + 1;
+      }
+      // When unliking, keep the same like count (don't decrease)
+      
+      // Update services based on like state
       this.likeCountService.updateLikeCount(this.artwork.objectID, this.likes);
-      this.saveUserLike(this.artwork.objectID.toString(), this.isLiked);
+      this.saveUserLike(this.artwork.objectID.toString(), this.isLiked); 
       
       if (this.isLiked) {
         this.likedArtworksService.addLikedArtwork(this.artwork);
@@ -289,34 +330,36 @@ export class CardComponent implements OnInit, OnDestroy {
         this.likedArtworksService.removeLikedArtwork(this.artwork.objectID);
       }
       
-      // Sync with API
-      const likeData: Like = {
-        item_id: this.artwork.objectID.toString(),
-        likes: this.likes
-      };
+      // Only sync with API when liking (increasing count)
+      if (this.isLiked) {
+        const likeData: Like = {
+          item_id: this.artwork.objectID.toString(),
+          likes: this.likes
+        };
 
-      this.apiService.postLike(likeData).subscribe({
-        next: (response) => {
-          if (response && typeof response.likes === 'number') {
-            this.likes = response.likes;
+        this.apiService.postLike(likeData).subscribe({
+          next: (response) => {
+            if (response && typeof response.likes === 'number') {
+              this.likes = response.likes;
+              this.likeCountService.updateLikeCount(this.artwork.objectID, this.likes);
+            }
+          },
+          error: (error) => {
+            console.error('Error posting like:', error);
+            // Rollback all changes on error
+            this.isLiked = previousLikedState;
+            this.likes = previousLikeCount;
             this.likeCountService.updateLikeCount(this.artwork.objectID, this.likes);
+            this.saveUserLike(this.artwork.objectID.toString(), this.isLiked);
+            
+            if (previousLikedState) {
+              this.likedArtworksService.addLikedArtwork(this.artwork);
+            } else {
+              this.likedArtworksService.removeLikedArtwork(this.artwork.objectID);
+            }
           }
-        },
-        error: (error) => {
-          console.error('Error toggling like:', error);
-          // Rollback all changes on error
-          this.isLiked = previousLikedState;
-          this.likes = previousLikeCount;
-          this.likeCountService.updateLikeCount(this.artwork.objectID, this.likes);
-          this.saveUserLike(this.artwork.objectID.toString(), this.isLiked);
-          
-          if (previousLikedState) {
-            this.likedArtworksService.addLikedArtwork(this.artwork);
-          } else {
-            this.likedArtworksService.removeLikedArtwork(this.artwork.objectID);
-          }
-        }
-      });
+        });
+      }
     }
   }
 
