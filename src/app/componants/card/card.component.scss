@@ -5,14 +5,17 @@ ion-card {
   align-items: center;
   text-align: start;
 
-  padding: 16px;
+  padding: 20px;
+  margin-bottom: 20px; 
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   justify-content: space-between;
+  min-height: 400px;  // Ensure minimum height
+  height: auto;       // Allow card to grow
 
   img {
     width: 100%;
-    height: 100%;
+    height: auto; // 
     margin-bottom: 12px;
     border-radius: 12px;
     object-fit: cover;

@@ -7,8 +7,8 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-liked-artworks', // Changed from app-tab3 to app-liked-artworks
-  templateUrl: 'tab3.page.html',
-  styleUrls: ['tab3.page.scss'],
+  templateUrl: 'liked-artworks.page.html',
+  styleUrls: ['liked-artworks.page.scss'],
   imports: [
     IonText, 
     IonHeader, 

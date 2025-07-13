@@ -8,8 +8,8 @@ import { CardComponent } from '../componants/card/card.component';
   selector: 'app-home', // Changed from app-tab1 to app-home
   standalone: true,
   imports: [IonicModule, CommonModule, CardComponent],
-  templateUrl: './tab1.page.html',
-  styleUrls: ['./tab1.page.scss']
+  templateUrl: './home.page.html',
+  styleUrls: ['./home.page.scss']
 })
 export class HomePage implements OnInit { // Changed from Tab1Page to HomePage
   

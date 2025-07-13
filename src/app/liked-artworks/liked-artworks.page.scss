@@ -9,9 +9,12 @@
   padding: 80px 16px 16px 16px; // Added top padding to push content below header
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+  gap: 9px;
   max-width: 1200px;
   margin: 0 auto;
+  padding-bottom: 90px; // Increased padding to ensure last card is fully visible above bottom tab bar
+  grid-template-rows: auto;  // Allow rows to size naturally
+  align-items: stretch;   
 }
 
 .liked-artwork-card {
@@ -48,6 +51,7 @@
   .liked-artworks-container {
     grid-template-columns: 1fr;
     padding: 12px;
+    padding-bottom: 120px; // Ensure bottom padding on mobile too
     gap: 12px;
   }
 }

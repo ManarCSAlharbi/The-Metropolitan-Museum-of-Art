@@ -1,5 +1,5 @@
 
-<ion-header class="ion-header">
+<ion-header [translucent]="true"  class="ion-header">
   <ion-toolbar color="teal">
     <ion-title class="custom-title">
       <div class="title-text">Virtual Display</div>
@@ -8,8 +8,9 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [fullscreen]="true" >
   <!-- Main artwork list with infinite scroll -->
+   
   <ng-container *ngIf="artworks.length; else skeletonLoader">
     <div class="artwork-grid">
       <app-card 

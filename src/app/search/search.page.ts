@@ -9,8 +9,8 @@ import { Observable, Subject, switchMap, debounceTime, distinctUntilChanged, of,
 
 @Component({
   selector: 'app-search', // Changed from app-tab2 to app-search
-  templateUrl: 'tab2.page.html',
-  styleUrls: ['tab2.page.scss'],
+  templateUrl: 'search.page.html',
+  styleUrls: ['search.page.scss'],
   imports: [
     IonHeader, IonToolbar, IonTitle, IonContent, IonSearchbar, 
     IonGrid, IonRow, IonCol, IonSpinner,

@@ -64,10 +64,10 @@ app-card {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
   padding: 20px;
-  padding-bottom: 120px; /* Add bottom padding to ensure last card is fully visible above bottom tab bar */
+  //padding-bottom: 120px; /* Add bottom padding to ensure last card is fully visible above bottom tab bar */
   max-width: 1400px;
-  margin: 0 auto;
-  margin-top: 16px; /* Add top margin to prevent content from hiding behind header */
+  
+  margin-top: 70px; /* Add top margin to prevent content from hiding behind header */
   
   app-card {
     margin: 0; /* Remove individual margins since grid handles spacing */
