@@ -1,19 +1,19 @@
-<ion-header>
-  <ion-toolbar color="teal">
-    <ion-title class="custom-title" align="center">
+<ion-header [translucent]="true">
+  <ion-toolbar  color="teal">
+    <ion-title align="center">
       <div class="title-text">Search</div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 
-<ion-content>
+<ion-content [fullscreen]="true">
   <!-- Centered search bar at top -->
   <div class="search-wrapper">
     <ion-searchbar 
       [(ngModel)]="searchTerm"
-      (ionInput)="onSearchChange($event)"
-      placeholder="Search any artwork, artist, style, or culture..."
+      (ionInput)="onSearch()"
+      placeholder="Search any artwork, artist, ..."
       show-clear-button="focus">
     </ion-searchbar>
   </div>

@@ -4,18 +4,17 @@ ion-card {
   flex-direction: column;
   align-items: center;
   text-align: start;
-
   padding: 20px;
   margin-bottom: 20px; 
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   justify-content: space-between;
-  min-height: 400px;  // Ensure minimum height
-  height: auto;       // Allow card to grow
+  min-height: 400px;
+  height: auto;
 
   img {
     width: 100%;
-    height: auto; // 
+    height: auto;
     margin-bottom: 12px;
     border-radius: 12px;
     object-fit: cover;
@@ -37,13 +36,12 @@ ion-card {
 .text-section {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;  
-  text-align: left;         
+  align-items: flex-start;
+  text-align: left;
 
   ion-card-title {
     font-weight: 600;
     font-size: 1.1rem;
-  
   }
 
   ion-card-subtitle {
@@ -52,98 +50,24 @@ ion-card {
   }
 }
 
-.like-section {
-  display: flex;
-  align-items: center;
-}
-
-/* Likes Section Styling */
-.likes-section {
+/* Likes Section */
+.likes-section, .likes-section-modal {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.likes-section {
   margin-top: 8px;
   padding: 8px 0;
-
-  .like-button, .remove-button {
-    --padding-start: 0;
-    --padding-end: 0;
-    margin: 0;
-    
-    ion-icon {
-      font-size: 1.2rem;
-      transition: color 0.2s ease;
-      color: #666; // Default gray color for outline heart
-      
-      &[color="danger"] {
-        color: #ff4444 !important;
-      }
-      
-      &.liked {
-        color: #ff4444 !important;
-      }
-      
-      // Ensure filled heart stays red
-      &[name="heart"] {
-        color: #ff4444 !important;
-      }
-    }
-  }
-  
-  .remove-button {
-    position: relative;
-    
-    ion-icon {
-      &:hover {
-        color: #cc0000 !important;
-        transform: scale(1.1);
-      }
-    }
-    
-    // Add a subtle animation to indicate it's removable
-    &:hover {
-      animation: pulse 1s infinite;
-    }
-  }
-  
-  @keyframes pulse {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-
-  .likes-count {
-    font-size: 0.9rem;
-    color: #666;
-    font-weight: 500;
-  }
 }
 
 .likes-section-modal {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   margin: 16px 0;
   padding: 12px;
   background-color: #f8f9fa;
   border-radius: 8px;
-
-  .like-button {
-    --padding-start: 0;
-    --padding-end: 0;
-    margin: 0;
-    
-    ion-icon {
-      font-size: 1.4rem;
-    }
-  }
-
+  
   .likes-count {
     font-size: 1rem;
     color: #333;
@@ -151,27 +75,50 @@ ion-card {
   }
 }
 
-/* MODAL CONTENT STYLING */
+.like-button, .remove-button {
+  --padding-start: 0;
+  --padding-end: 0;
+  margin: 0;
+  
+  ion-icon {
+    font-size: 1.2rem;
+    transition: color 0.2s ease;
+    color: #666;
+    
+    &[color="danger"], &.liked, &[name="heart"] {
+      color: #ff4444 !important;
+    }
+  }
+}
+
+.remove-button {
+  ion-icon:hover {
+    color: #cc0000 !important;
+    transform: scale(1.1);
+  }
+  
+  &:hover {
+    animation: pulse 1s infinite;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.likes-count {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+/* MODAL STYLING */
 ion-modal::part(content) {
   border-radius: 0;
   max-width: 500px;
   margin: auto;
-}
-
-.modal-close-button {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 1000;
-
-  font-size: 24px;
-
-  
-  cursor: pointer;
-
-  &:hover {
-    color: var(--ion-color-teal-shade, #2f3433);
-  }
 }
 
 ion-content {
@@ -181,14 +128,15 @@ ion-content {
   padding: 20px;
   background: #fff;
   text-align: center;
-}
-
-ion-content img {
-  width: 100%;
-    height: auto; // 
+  
+  img {
+    width: 100%;
+    height: auto;
     margin-bottom: 12px;
     border-radius: 12px;
-    object-fit: cover;}
+    object-fit: cover;
+  }
+}
 
 ion-title {
   font-size: 1.4rem;
@@ -196,44 +144,41 @@ ion-title {
   margin: 0 0 8px;
   color: #333;
   padding: 16px;
-
 }
 
-ion-card-subtitle {
-  font-size: 0.95rem;
-  color: #666;
-  margin-bottom: 16px;
-  padding: 10px;
+.modal-close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1000;
+  font-size: 24px;
+  cursor: pointer;
+  
+  &:hover {
+    color: var(--ion-color-teal-shade, #2f3433);
+  }
 }
 
+/* Forms & Inputs */
 .comment-form {
   display: flex;
   flex-direction: column;
-  padding: auto;
   align-items: center;
   width: 100%;
-  fill:outline;
-  margin-top: 16px;
-  margin-bottom: 16px;
-    
-
-
-  
+  margin: 16px 0;
 }
 
 .comment-form ion-input,
 .comment-form ion-textarea {
-      --fill: otline;
-      --border-color:#6d6262;
-    --color: #333333;
-    --placeholder-color: #999999;
+  --fill: outline;
+  --border-color: #6d6262;
+  --color: #333;
+  --placeholder-color: #999;
   margin: 12px;
-  text-align: left; // apply this as well
+  text-align: left;
   padding: 10px;
-  
 }
 
-/* BUTTON INSIDE MODAL */
 ion-button[color="teal"] {
   margin: 12px auto;
   width: 100%;
@@ -241,9 +186,18 @@ ion-button[color="teal"] {
   --background: var(--ion-color-teal, "teal");
   --color: var(--ion-color-teal-contrast, white);
   --border-radius: 12px;
+  
+  &[disabled] {
+    opacity: 0.6;
+  }
+  
+  &:not([disabled]):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
 }
 
-/* COMMENTS HEADER */
+/* Comments */
 ion-row {
   display: flex;
   justify-content: center;
@@ -253,7 +207,6 @@ ion-row {
   font-size: 1rem;
 }
 
-/* COMMENTS LIST */
 ion-list {
   height: 100%;
   background: #f9f9f9;
@@ -265,203 +218,57 @@ ion-list {
 
 ion-item {
   --background: transparent;
+  --padding-start: 16px;
+  --padding-end: 16px;
   border-bottom: 1px solid #e0e0e0;
-
+  
   ion-label {
     font-size: 0.95rem;
     color: #444;
     text-align: left;
+    
+    h3 {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #666;
+    }
+    
+    p {
+      margin: 2px 0;
+      line-height: 1.4;
+      color: #666;
+    }
   }
 }
 
-ion-header {
-  box-shadow: none;
-}
-
-/* COMMENTS STYLING */
 .comment-date {
   font-size: 0.8em;
   color: var(--ion-color-medium);
   margin-top: 4px;
 }
 
-ion-item {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  
-  ion-label {
-    h3 {
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: #666666; /* Gray color for displayed username */
-    }
-    
-    p {
-      margin: 2px 0;
-      line-height: 1.4;
-      color: #666666; /* Gray color for displayed comment text */
-    }
+/* Error Messages */
+.error-message {
+  color: #ff4444;
+  font-size: 0.85rem;
+  margin-top: -12px;
+  margin-bottom: 16px;
+  padding-left: 16px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-ion-modal {
-  ion-content {
-    --padding-start: 16px;
-    --padding-end: 16px;
-    --padding-top: 16px;
-    --padding-bottom: 16px;
-  }
-  
-  h3 {
-    margin-top: 24px;
-    margin-bottom: 16px;
-    font-weight: 600;
-    
-  }
-  
-  ion-input, ion-textarea {
-    margin-bottom: 16px;
-    
-    // Default rest state - gray
-    --fill: otline;
-      --border-color:#6d6262;
-    --color: #333333;
-    --placeholder-color: #999999;
-    
-    &.ion-invalid {
-      --fill: otline;
-      --border-color: #ff4444;
-      --color: #ff4444;
-      --placeholder-color: #ff9999;
-    }
-    
-    &.ion-valid {
-      --fill: otline;
-      --border-color: #28a745;
-      --color: #28a745;
-    }
-    
-    // Force gray state
-    &.force-gray {
-      fill: otline;
-      --border-color:#6d6262;
-      --color: #333333;
-      --placeholder-color: #999999;
-    }
-    
-    &.invalid-state {
-      --border-color: #ff4444;
-      --color: #ff4444;
-      --placeholder-color: #ff9999;
-    }
-    
-    &.valid-state {
-      --border-color: #28a745;
-      --color: #28a745;
-    }
-  }
-  
-  // Make textarea rectangular like input
-  ion-textarea[fill="outline"] {
-    --border-radius: 8px;
-    min-height: 80px;
-    resize: none;
-    
-    .native-textarea {
-      border-radius: 8px !important;
-    }
-  }
-  
-  // Force default gray state for empty fields
-  ion-input[fill="outline"]:not(.ion-invalid):not(.ion-valid),
-  ion-textarea[fill="outline"]:not(.ion-invalid):not(.ion-valid) {
-    border-color: #cccccc !important;
-    --border-color: #cccccc !important;
-    --color: #333333 !important;
-  }
-  
-  .error-message {
-    color: #ff4444;
-    font-size: 0.85rem;
-    margin-top: -12px;
-    margin-bottom: 16px;
-    padding-left: 16px;
-    animation: fadeIn 0.3s ease-in-out;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  ion-button {
-    margin-bottom: 16px;
-    transition: all 0.3s ease;
-    
-    &[disabled] {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    
-    &:not([disabled]):hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-  }
-}
-
-/* Alert Styling */
-:global(.alert-wrapper) {
-  .alert-head {
-    text-align: center;
-    padding: 20px 20px 10px;
-  }
-  
-  .alert-message {
-    text-align: center;
-    padding: 0 20px 20px;
-    line-height: 1.5;
-  }
-  
-  .alert-button-group {
-    .alert-button {
-      &.secondary {
-        color: #666;
-      }
-      
-      &.danger {
-        color: #ff4444;
-        font-weight: 600;
-      }
-    }
-  }
-}
-title.modal {
-  top: 8px;
-  right: 8px;
-  z-index: 1000;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #333;
-  margin: 0;
-}
-
-modal.toolbar {
-  --background: #f8f9fa;
-  --border-radius: 0;
-  --box-shadow: none;
-  align-items: flex-end;
-  justify-content: space-between;
-
-  
-}
-
+/* Misc */
 h3.h3 {
   font-size: 1.2rem;
   font-weight: 600;

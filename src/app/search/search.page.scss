@@ -1,5 +1,5 @@
 .title-text {
-  text-align: center;
+  
   font-family: Arial, sans-serif;
   font-size: 24px;
   color: white;
@@ -10,11 +10,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px 16px;
+  padding: 20px 20px;
   background: var(--ion-background-color, #fff);
   position: sticky;
-  top: 0;
-  z-index: 100;
+  top: 30px;
+  bottom: 150px;
+
+
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -57,11 +59,11 @@ ion-content {
   color: #666;
   
   ion-spinner {
-    margin-bottom: 16px;
+    margin-bottom: 120px;
   }
   
   p {
-    margin: 0;
+    margin: 120px 0;
     font-size: 16px;
   }
 }
@@ -72,7 +74,7 @@ ion-content {
   color: #666;
   
   p {
-    margin: 8px 0;
+    margin: 10px 0;
     font-size: 16px;
   }
 
@@ -89,7 +91,7 @@ ion-content {
 
 .welcome-message {
   text-align: center;
-  padding: 40px;
+  padding: 69px;
   color: #666;
   
   h3 {
@@ -126,6 +128,7 @@ ion-col {
 
 // Enhanced search bar styling
 ion-searchbar {
+  --animation-direction: sticky;
   --background: #f8f9fa;
   --border-radius: 12px;
   --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);

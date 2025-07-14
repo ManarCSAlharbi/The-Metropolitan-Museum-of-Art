@@ -4,7 +4,8 @@ import { LikedArtworksService, LikedArtwork } from '../services/liked-artworks/l
 import { CardComponent } from '../componants/card/card.component';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-//jjj
+import { Artwork } from '../services/api/api.service';
+
 @Component({
   selector: 'app-liked-artworks', // Changed from app-tab3 to app-liked-artworks
   templateUrl: 'liked-artworks.page.html',
@@ -20,7 +21,8 @@ import { Subscription } from 'rxjs';
   ],
 })
 export class LikedArtworksPage implements OnInit, OnDestroy { // Changed from Tab3Page to LikedArtworksPage
-  likedArtworks: LikedArtwork[] = [];
+  likedArtworks: Artwork[] = [];
+  private readonly STORAGE_KEY = 'liked_artworks';
   private subscription?: Subscription;
 
   constructor(private likedArtworksService: LikedArtworksService) {}
@@ -32,6 +34,7 @@ export class LikedArtworksPage implements OnInit, OnDestroy { // Changed from Ta
         this.likedArtworks = artworks;
       }
     );
+    this.loadLikedArtworks();
   }
 
   ngOnDestroy() {
@@ -41,13 +44,37 @@ export class LikedArtworksPage implements OnInit, OnDestroy { // Changed from Ta
     }
   }
 
-  // Refresh liked artworks when tab is entered
-  ionViewWillEnter() {
-    // This ensures the list is current when user switches to this tab
+
+
+  private loadLikedArtworks() {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        this.likedArtworks = JSON.parse(stored);
+      }
+    } catch (error) {
+      console.error('Error loading liked artworks:', error);
+      this.likedArtworks = [];
+    }
   }
 
+
+  onArtworkRemoved(artwork: Artwork) {
+    this.likedArtworks = this.likedArtworks.filter(a => a.objectID !== artwork.objectID);
+    //this.saveLikedArtworks();
+  }
+
+  // Persist liked artworks to localStorage
+  //private saveLikedArtworks() {
+  //  try {
+  //    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.likedArtworks));
+    //} catch (error) {
+      //console.error('Error saving liked artworks:', error);
+    //}
+  //}
+
   // Optimize rendering performance for large lists
-  trackByObjectId(index: number, artwork: LikedArtwork): number {
+  trackByObjectId(index: number, artwork: Artwork): number {
     return artwork.objectID;
   }
 }

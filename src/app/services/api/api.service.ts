@@ -49,202 +49,29 @@ export class ApiService {
       );
   }
 
-  // 1S - method to Prevents unnecessary API calls for empty searches
-  searchArtworks(query: string, limit: number = 20): Observable<Artwork[]> {
-    if (!query.trim()) { // Checks if search query is empty after removing whitespace
-      return of([]); // Return empty array if query is empty
+  // Search artworks by query
+  searchArtworks(query: string): Observable<Artwork[]> {
+    if (!query.trim()) {
+      return of([]);
     }
-    
-    // Get results from API and filter them to show only relevant matches
-    // Calls the actual API search method
-    return this.performSingleSearch(query, limit * 3).pipe(
-      map(results => {
-        // Filter results to only show artworks that actually match the search query
-        const relevantResults = this.filterRelevantResults(results, query);
-        return relevantResults.slice(0, limit);
+    const params = `?q=${encodeURIComponent(query)}&hasImages=true`;
+    return this.http.get<{ objectIDs: number[] }>(`${this.apiUrl}/search${params}`).pipe(
+      switchMap(res => {
+        if (!res.objectIDs || res.objectIDs.length === 0) {
+          return of([]);
+        }
+        // Limit to first 20 results for performance
+        const ids = res.objectIDs.slice(0, 20);
+        return forkJoin(ids.map(id => this.http.get<Artwork>(`${this.apiUrl}/objects/${id}`)));
       }),
-      catchError(error => {
-        console.error('Search error:', error);
-        return of([]);
-      })
+      map(artworks => artworks.filter(a => a.primaryImageSmall || a.primaryImage)),
+      catchError(() => of([]))
     );
-  }
-
-  // Filter results to only show artworks that actually match the search query
-  private filterRelevantResults(artworks: Artwork[], query: string): Artwork[] {
-    const queryLower = query.toLowerCase().trim();
-    
-    if (queryLower.length === 0) {
-      return artworks;
-    }
-    
-    const queryWords = queryLower.split(/\s+/).filter(word => word.length >= 2);
-    
-    return artworks.filter(artwork => {
-      // Extract all searchable fields from artwork
-      const searchableFields = [
-        artwork.title || '',
-        (artwork as any).primaryImageSmall || '',
-        (artwork as any).primaryImage || '',
-        artwork.artistDisplayName || '',
-        (artwork as any).department || '',
-        (artwork as any).objectName || '',  
-        (artwork as any).culture || '',
-        (artwork as any).medium || '',
-        (artwork as any).GalleryNumber || '',
-        (artwork as any).accessionNumber || '',
-        (artwork as any).accessionYear || '',
-        (artwork as any).artistAlphaSort || '',
-        (artwork as any).artistBeginDate || '',
-        (artwork as any).artistDisplayBio || '',
-        (artwork as any).artistEndDate || '',
-        (artwork as any).artistGender || '',
-        (artwork as any).artistNationality || '',
-        (artwork as any).artistPrefix || '',
-        (artwork as any).artistRole || '',
-        (artwork as any).artistSuffix || '',
-        (artwork as any).city || '',
-        (artwork as any).classification || '',
-        (artwork as any).country || '',
-        (artwork as any).county || '',
-        (artwork as any).creditLine || '',
-        (artwork as any).dimensions || '',
-        (artwork as any).dynasty || '',
-        (artwork as any).excavation || '',
-        (artwork as any).geographyType || '',
-        (artwork as any).linkResource || '',
-        (artwork as any).locale || '',
-        (artwork as any).locus || '',
-        (artwork as any).objectDate || '',
-        (artwork as any).objectBeginDate || '',
-        (artwork as any).objectEndDate || '',
-        (artwork as any).period || '',
-        (artwork as any).portfolio || '',
-        (artwork as any).region || '',
-        (artwork as any).reign || '',
-        (artwork as any).repository || '',
-        (artwork as any).rightsAndReproduction || '',
-        (artwork as any).river || '',
-        (artwork as any).state || '',
-        (artwork as any).subregion || ''
-      ];
-      
-      // Handle array fields
-      const additionalImages = (artwork as any).additionalImages || [];
-      const tags = (artwork as any).tags || [];
-      const constituents = (artwork as any).constituents || [];
-      const measurements = (artwork as any).measurements || [];
-      
-      // Add array contents to searchable fields
-      additionalImages.forEach((img: string) => searchableFields.push(img));
-      
-      // Handle tags array
-      if (Array.isArray(tags)) {
-        tags.forEach((tag: any) => {
-          if (typeof tag === 'string') {
-            searchableFields.push(tag);
-          } else if (tag && tag.term) {
-            searchableFields.push(tag.term);
-          }
-        });
-      }
-      
-      // Handle constituents array
-      if (Array.isArray(constituents)) {
-        constituents.forEach((constituent: any) => {
-          if (constituent) {
-            searchableFields.push(constituent.name || '');
-            searchableFields.push(constituent.role || '');
-          }
-        });
-      }
-      
-      // Handle measurements array
-      if (Array.isArray(measurements)) {
-        measurements.forEach((measurement: any) => {
-          if (measurement) {
-            searchableFields.push(measurement.elementName || '');
-            searchableFields.push(measurement.elementDescription || '');
-            if (measurement.elementMeasurements) {
-              searchableFields.push(measurement.elementMeasurements.Height?.toString() || '');
-              searchableFields.push(measurement.elementMeasurements.Width?.toString() || '');
-              searchableFields.push(measurement.elementMeasurements.Depth?.toString() || '');
-            }
-          }
-        });
-      }
-      
-      // Convert all fields to lowercase for searching
-      const searchableText = searchableFields.join(' ').toLowerCase();
-      
-      // Check if any field contains the full query
-      const fullQueryMatch = searchableText.includes(queryLower);
-      
-      // Check if any field contains all query words
-      const allWordsMatch = queryWords.every(word => searchableText.includes(word));
-      
-      // Return true if there's a meaningful match
-      return fullQueryMatch || allWordsMatch;
-    }).sort((a, b) => {
-      // Sort by relevance - exact matches first
-      const aTitle = (a.title || '').toLowerCase();
-      const bTitle = (b.title || '').toLowerCase();
-      const aArtist = (a.artistDisplayName || '').toLowerCase();
-      const bArtist = (b.artistDisplayName || '').toLowerCase();
-      
-      // Priority: exact title match > title contains > artist contains
-      if (aTitle === queryLower) return -1;
-      if (bTitle === queryLower) return 1;
-      if (aTitle.includes(queryLower) && !bTitle.includes(queryLower)) return -1;
-      if (bTitle.includes(queryLower) && !aTitle.includes(queryLower)) return 1;
-      if (aArtist.includes(queryLower) && !bArtist.includes(queryLower)) return -1;
-      if (bArtist.includes(queryLower) && !aArtist.includes(queryLower)) return 1;
-      
-      return 0;
-    });
   }
 
   // Get individual artwork details by ID
   getArtworkById(id: number): Observable<Artwork> {
     return this.http.get<Artwork>(`${this.apiUrl}/objects/${id}`);
-  }
-
-  // Perform single search API call with caching prevention
-  private performSingleSearch(searchTerm: string, limit: number): Observable<Artwork[]> {
-    const params = `?q=${encodeURIComponent(searchTerm)}&hasImages=true`;
-    
-    return this.http
-      .get<{ objectIDs: number[] }>(`${this.apiUrl}/search${params}&_t=${Date.now()}`)
-      .pipe(
-        map(res => {
-          if (!res || !res.objectIDs || res.objectIDs.length === 0) {
-            return [];
-          }
-          // Get more IDs to have a better selection after filtering
-          return res.objectIDs.slice(0, Math.min(limit, 80));
-        }),
-        switchMap(ids => {
-          if (ids.length === 0) {
-            return of([]);
-          }
-          
-          return from(ids).pipe(
-            mergeMap(id => this.getArtworkById(id).pipe(
-              catchError((error) => {
-                return of(null);
-              })
-            ), 8), // Increase concurrent requests for better performance
-            filter((artwork: Artwork | null): artwork is Artwork => {
-              return artwork !== null && Boolean(artwork.primaryImageSmall || artwork.primaryImage);
-            }),
-            toArray()
-          );
-        }),
-        catchError(error => {
-          console.error(`Search error for "${searchTerm}":`, error);
-          return of([]);
-        })
-      );
   }
 
   // Comments API methods

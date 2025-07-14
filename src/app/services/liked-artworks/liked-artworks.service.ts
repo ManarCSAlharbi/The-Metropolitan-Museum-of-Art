@@ -20,7 +20,7 @@ export class LikedArtworksService {
   private likedArtworksSubject = new BehaviorSubject<LikedArtwork[]>([]);
   
   constructor() {
-    this.loadLikedArtworks();
+    // Removed loadLikedArtworks call
   }
 
   // Get reactive stream of liked artworks
@@ -52,7 +52,7 @@ export class LikedArtworksService {
       };
 
       this.likedArtworks.unshift(likedArtwork); // Add to beginning
-      this.saveLikedArtworks();
+      // Removed saveLikedArtworks call
       this.likedArtworksSubject.next([...this.likedArtworks]);
     }
   }
@@ -65,7 +65,7 @@ export class LikedArtworksService {
 
     if (index !== -1) {
       this.likedArtworks.splice(index, 1);
-      this.saveLikedArtworks();
+      // Removed saveLikedArtworks call
       this.likedArtworksSubject.next([...this.likedArtworks]);
     }
   }
@@ -80,33 +80,10 @@ export class LikedArtworksService {
     return this.likedArtworks.length;
   }
 
-  // Load liked artworks from localStorage on service initialization
-  private loadLikedArtworks(): void {
-    try {
-      const stored = localStorage.getItem('likedArtworksData');
-      if (stored) {
-        this.likedArtworks = JSON.parse(stored);
-        this.likedArtworksSubject.next([...this.likedArtworks]);
-      }
-    } catch (error) {
-      console.error('Error loading liked artworks:', error);
-      this.likedArtworks = [];
-    }
-  }
-
-  // Persist liked artworks to localStorage
-  private saveLikedArtworks(): void {
-    try {
-      localStorage.setItem('likedArtworksData', JSON.stringify(this.likedArtworks));
-    } catch (error) {
-      console.error('Error saving liked artworks:', error);
-    }
-  }
-
   // Clear all liked artworks
   clearAllLikedArtworks(): void {
     this.likedArtworks = [];
-    this.saveLikedArtworks();
+    //this.saveLikedArtworks();
     this.likedArtworksSubject.next([]);
   }
 }
