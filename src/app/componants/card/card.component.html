@@ -79,8 +79,9 @@
         <h3 class="h3">{{ artwork?.artistDisplayName || 'Unknown Artist' }}</h3>
         <p><strong>Dimensions:</strong> {{ artwork?.dimensions || 'Not specified' }}</p>
         <p><strong>Date:</strong> {{ artwork?.objectDate || 'Unknown date' }}</p>
-
+ 
         <h3>Add Comment</h3>
+      
         <ion-input 
           fill="outline"
           label="Name" 
@@ -92,11 +93,14 @@
           maxlength="50"
           required>
         </ion-input>
+      
         <div class="error-message" *ngIf="!validation.username.isValid && newComment.username.length > 0 && !justSubmitted">
           {{ validation.username.errorMessage }}
         </div>
+          
 
         <ion-textarea 
+      
           fill="outline"
           label="Comment" 
           label-placement="floating" 
@@ -107,7 +111,8 @@
           [class]="getValidationClass('comment')"
           maxlength="500"
           rows="3"
-          required>
+          required
+        >
         </ion-textarea>
         <div class="error-message" *ngIf="!validation.comment.isValid && newComment.comment.length > 0 && !justSubmitted">
           {{ validation.comment.errorMessage }}
@@ -121,9 +126,10 @@
           color="teal">
           Comment
         </ion-button>
-
+    
         <h3>Comments ({{ comments.length }})</h3>
         <ion-list>
+
           <ion-item *ngFor="let comment of comments">
             <ion-label>
               <h3>{{ comment.username }}</h3>
@@ -131,12 +137,15 @@
               <p class="comment-date">{{ comment.creation_date | date:'short' }}</p>
             </ion-label>
           </ion-item>
+
           <ion-item *ngIf="comments.length === 0">
             <ion-label>
               <p>No comments yet. Be the first to comment!</p>
             </ion-label>
           </ion-item>
+          
         </ion-list>
+
       </ion-content>
     </ng-template>
   </ion-modal>

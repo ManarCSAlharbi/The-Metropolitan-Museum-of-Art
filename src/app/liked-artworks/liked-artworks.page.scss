@@ -6,20 +6,23 @@
 }
 
 .liked-artworks-container {
+  
   padding: 80px 16px 16px 16px; // Added top padding to push content below header
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 9px;
   max-width: 1200px;
-  margin: 0 auto;
-  padding-bottom: 90px; // Increased padding to ensure last card is fully visible above bottom tab bar
+  margin: 10 auto;
+   // Increased padding to ensure last card is fully visible above bottom tab bar
   grid-template-rows: auto;  // Allow rows to size naturally
   align-items: stretch;   
 }
 
 .liked-artwork-card {
+  padding-top: 4rem;
   width: 100%;
   margin: 0;
+
 }
 
 .no-liked-artworks {

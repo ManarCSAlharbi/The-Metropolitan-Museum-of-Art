@@ -122,6 +122,7 @@ ion-modal::part(content) {
 }
 
 ion-content {
+  justify-content: space-around;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -165,18 +166,28 @@ ion-title {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  margin: 16px 0;
+  margin: 16px ;
 }
 
-.comment-form ion-input,
-.comment-form ion-textarea {
+ ion-input {
+    --fill: outline;
+  --border-color: #6d6262;
+  --color: #333;
+  --placeholder-color: #999;
+  margin-right: 16px;
+  text-align: left;
+ }
+ ion-textarea {
+
   --fill: outline;
   --border-color: #6d6262;
   --color: #333;
   --placeholder-color: #999;
-  margin: 12px;
   text-align: left;
-  padding: 10px;
+  margin-right: 16px;
+  margin-top: 16px;
+  
+
 }
 
 ion-button[color="teal"] {
@@ -214,6 +225,29 @@ ion-list {
   padding: 12px;
   width: 100%;
   max-width: 400px;
+  max-height: 300px; /* Adjust this value as needed */
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+/* Optional: Style the scrollbar for better appearance */
+ion-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+ion-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+ion-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+ion-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 ion-item {
@@ -255,6 +289,8 @@ ion-item {
   margin-bottom: 16px;
   padding-left: 16px;
   animation: fadeIn 0.3s ease-in-out;
+  margin-top: 10px;
+  
 }
 
 @keyframes fadeIn {

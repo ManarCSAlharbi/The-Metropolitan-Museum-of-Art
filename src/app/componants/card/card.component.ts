@@ -129,35 +129,43 @@ export class CardComponent implements OnInit, OnDestroy {
 
   // Load comments for the artwork
   loadComments() {
-    if (this.artwork?.objectID) {
-      console.log(`Loading comments for artwork: ${this.artwork?.title || 'Unknown Title'} (ID: ${this.artwork.objectID})`);
-      
-      this.apiService.getComments(this.artwork.objectID.toString()).subscribe({
-        next: (comments) => {
-          console.log(`Comments received for ${this.artwork?.title || 'Unknown Title'}:`, comments);
-          this.comments = comments || [];
-          
-          if (this.comments.length > 0) {
-            console.log(`✅ ${this.comments.length} comments loaded for artwork: ${this.artwork?.title}`);
-          } else {
-            console.log(`ℹ️ No comments found for artwork: ${this.artwork?.title}`);
-          }
-        },
-        error: (error) => {
-          // Handle different error types gracefully
-          if (error.status === 400) {
-            console.log(`ℹ️ No comments available for artwork: ${this.artwork?.title} (ID: ${this.artwork.objectID})`);
-          } else {
-            console.error(`❌ Error loading comments for artwork ${this.artwork?.title || 'Unknown Title'}:`, error);
-          }
-          this.comments = [];
+  if (this.artwork?.objectID) {
+    console.log(`Loading comments for artwork: ${this.artwork?.title || 'Unknown Title'} (ID: ${this.artwork.objectID})`);
+    
+    this.apiService.getComments(this.artwork.objectID.toString()).subscribe({
+      next: (comments) => {
+        console.log(`Comments received for ${this.artwork?.title || 'Unknown Title'}:`, comments);
+        
+        // Ensure we get all comments, not just the first 10
+        this.comments = Array.isArray(comments) ? comments : [];
+        
+        // Sort comments by creation date (newest first) to ensure proper display order
+        this.comments.sort((a, b) => new Date(b.creation_date).getTime() - new Date(a.creation_date).getTime());
+        
+        console.log(`✅ ${this.comments.length} comments loaded for artwork: ${this.artwork?.title}`);
+        
+        if (this.comments.length === 0) {
+          console.log(`ℹ️ No comments found for artwork: ${this.artwork?.title}`);
         }
-      });
-    } else {
-      console.log('❌ No artwork ID available for loading comments');
-      this.comments = [];
-    }
+      },
+      error: (error) => {
+        // Handle different error types gracefully
+        if (error.status === 400) {
+          console.log(`ℹ️ No comments available for artwork: ${this.artwork?.title} (ID: ${this.artwork.objectID})`);
+        } else {
+          console.error(`❌ Error loading comments for artwork ${this.artwork?.title || 'Unknown Title'}:`, error);
+        }
+        this.comments = [];
+      }
+    });
+  } else {
+    console.log('❌ No artwork ID available for loading comments');
+    this.comments = [];
   }
+}
+
+
+
 
   // Load like count from API and synchronize services
   loadLikes() {

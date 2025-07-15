@@ -4,27 +4,31 @@ const config: CapacitorConfig = {
   appId: 'io.ionic.starter',
   appName: 'The-Metropolitan-Museum-of-Art',
   webDir: 'www',
+  android:{
+    adjustMarginsForEdgeToEdge: "force",
+  },
   
-  "plugins": {
-    "SplashScreen": {
-      "launchShowDuration": 3000,
-      "launchAutoHide": true,
-      "launchFadeOutDuration": 200,
-      "backgroundColor": "#ffffffff",
-      "androidSplashResourceName": "splash",
-      "androidScaleType": "CENTER_CROP",
-      "showSpinner": false,
-      "androidSpinnerStyle": "large",
-      "iosSpinnerStyle": "small",
-      "spinnerColor": "#999999",
-      "splashFullScreen": true,
-      "splashImmersive": true,
-      "layoutName": "launch_screen",
-      "useDialog": true
-    }
-  }
-
+plugins: {
+    SplashScreen: {
+      launchShowDuration: 3000,
+      launchAutoHide: false, // Automatically hide splash screen after launchShowDuration
+      launchFadeOutDuration: 150, // Duration of the fade out animation
+      backgroundColor: "#ffffffff",
+      androidSplashResourceName: "splash",
+      androidScaleType: "CENTER_CROP",
+      showSpinner: true,
+      androidSpinnerStyle: "large",
+      iosSpinnerStyle: "small",
+      spinnerColor: "#999999",
+      splashFullScreen: true,
+      splashImmersive: true,
+      layoutName: "launch_screen",
+      useDialog: true,
+    },
+  },
 };
+
+
 
 
 export default config;

@@ -61,7 +61,7 @@ export class ApiService {
           return of([]);
         }
         // Limit to first 20 results for performance
-        const ids = res.objectIDs.slice(0, 20);
+        const ids = res.objectIDs.slice(0, 5);
         return forkJoin(ids.map(id => this.http.get<Artwork>(`${this.apiUrl}/objects/${id}`)));
       }),
       map(artworks => artworks.filter(a => a.primaryImageSmall || a.primaryImage)),
