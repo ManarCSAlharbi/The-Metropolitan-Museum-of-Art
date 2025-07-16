@@ -12,7 +12,7 @@ import { LikeCountService } from '../../services/like-count/like-count.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { AlertController } from '@ionic/angular';
+import { AlertController } from '@ionic/angular/standalone';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -118,6 +118,7 @@ export class CardComponent implements OnInit, OnDestroy {
     );
   }
 
+  // Clean up subscriptions to avoid memory leaks
   ngOnDestroy() {
     if (this.likedArtworksSubscription) {
       this.likedArtworksSubscription.unsubscribe();
@@ -217,23 +218,16 @@ export class CardComponent implements OnInit, OnDestroy {
 
   // 3c- Reset validation state when user starts typing after submission
   onUserStartsTyping() {
-    
+    // If just submitted, don't allow typing yet (keep gray state)
     if (this.justSubmitted) {
-      // Still in submission state, keep gray color
       return;
     }
     
-    this.isResetState = false; // User is now typing, exit initial state Signals that user is no longer in the initial/default state
-                               //Allows validation colors to start working (red/green feedback)
-
+    // User is now typing, exit initial state
+    this.isResetState = false;
     
-    // If just submitted and user starts typing, reset the state 
-    if (this.justSubmitted && (this.newComment.username.length > 0 || this.newComment.comment.length > 0)) {
-      this.justSubmitted = false;
-    }
-    
-    this.onUserInput();//Calls the real-time validation method
-                       //starts the validation process for the current input
+    // Start real-time validation
+    this.onUserInput();
   }
 
   validateUsername() {
@@ -278,37 +272,67 @@ export class CardComponent implements OnInit, OnDestroy {
 
   // 2L- Toggle like state and update global like count
   async toggleLike() {
+    console.log('toggleLike called');
+    
     if (this.artwork?.objectID) {
+      console.log('Artwork ID found:', this.artwork.objectID);
+      console.log('Current like state:', this.isLiked);
+      console.log('Show remove button:', this.showRemoveButton);
+      
       // If user is trying to unlike from home page, show confirmation alert
       if (this.isLiked && !this.showRemoveButton) {
+        console.log('Should show confirmation alert');
+
         const artworkTitle = this.artwork.title || 'this artwork';
         const artistName = this.artwork.artistDisplayName || 'Unknown Artist';
         
-        const alert = await this.alertController.create({
-          header: 'Remove from Liked Artworks',
-          message: `Are you sure you want to remove "${artworkTitle}" by ${artistName} from your liked artworks?`,
-          buttons: [
-            {
-              text: 'Cancel',
-              role: 'cancel',
-              cssClass: 'secondary'
-            },
-            {
-              text: 'Yes, Remove',
-              cssClass: 'danger',
-              handler: () => {
-                this.performToggleLike();
+        console.log('Creating alert with title:', artworkTitle);
+        console.log('Artist name:', artistName);
+        
+        try {
+          const alert = await this.alertController.create({
+            header: 'Remove from Liked Artworks',
+            message: `Are you sure you want to remove "${artworkTitle}" by ${artistName} from your liked artworks?`,
+            buttons: [
+              {
+                text: 'Cancel',
+                role: 'cancel',
+                cssClass: 'alert-button-cancel secondary',
+                
+                handler: () => {
+                  console.log('Cancel clicked');
+                  return false;
+                }
+              },
+              {
+                text: 'Yes, Remove',
+                cssClass: 'alert-button-danger danger',
+                handler: () => {
+                  console.log('Remove clicked');
+                  this.performToggleLike();
+                  return true;
+                }
               }
-            }
-          ]
-        });
+            ]
+          });
 
-        await alert.present();
+          console.log('Alert created successfully');
+          await alert.present();
+          console.log('Alert presented successfully');
+        } catch (error) {
+          console.error('Error creating/presenting alert:', error);
+          // Fallback: proceed with the action if alert fails
+          console.log('Fallback: proceeding with toggle');
+          this.performToggleLike();
+        }
         return;
       }
 
       // If liking or using remove button, proceed directly
+      console.log('Proceeding directly with toggle');
       this.performToggleLike();
+    } else {
+      console.log('No artwork ID found');
     }
   }
 
@@ -378,26 +402,37 @@ export class CardComponent implements OnInit, OnDestroy {
     const artworkTitle = this.artwork.title || 'this artwork';
     const artistName = this.artwork.artistDisplayName || 'Unknown Artist';
     
-    const alert = await this.alertController.create({
-      header: 'Remove from Liked Artworks',
-      message: `Are you sure you want to remove "${artworkTitle}" by ${artistName} from your liked artworks?`,
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary'
-        },
-        {
-          text: 'Yes, Remove',
-          cssClass: 'danger',
-          handler: () => {
-            this.confirmRemoveFromLiked();
+    try {
+      const alert = await this.alertController.create({
+        header: 'Remove from Liked Artworks',
+        message: `Are you sure you want to remove "${artworkTitle}" by ${artistName} from your liked artworks?`,
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            cssClass: 'alert-button-cancel secondary',
+            handler: () => {
+              console.log('Cancel clicked');
+            }
+          },
+          {
+            text: 'Yes, Remove',
+            cssClass: 'alert-button-danger danger',
+            handler: () => {
+              console.log('Remove clicked');
+              this.confirmRemoveFromLiked();
+            }
           }
-        }
-      ]
-    });
+        ]
+      });
 
-    await alert.present();
+      await alert.present();
+      console.log('Alert presented');
+    } catch (error) {
+      console.error('Error creating alert:', error);
+      // Fallback: proceed with the action if alert fails
+      this.confirmRemoveFromLiked();
+    }
   }
 
   // Execute removal after user confirmation
@@ -438,26 +473,39 @@ export class CardComponent implements OnInit, OnDestroy {
 
     this.apiService.postComment(commentData).subscribe({
       next: (comment) => {
+        // Add the new comment to the list
         this.comments.push(comment);
-        this.justSubmitted = true;
-        this.isResetState = true; // Return to reset state
-        this.newComment = { username: '', comment: '' };
         
-        // Reset validation state to default
-        this.validation = {
-          username: { isValid: true, errorMessage: '' },
-          comment: { isValid: true, errorMessage: '' }
-        };
-        
-        // Keep gray state longer to ensure visual feedback
-        setTimeout(() => {
-          this.justSubmitted = false;
-        }, 2000); // Extended to 2 seconds
+        // Reset form to initial state
+        this.resetFormToInitialState();
       },
       error: (error) => {
         console.error('Error adding comment:', error);
       }
     });
+  }
+
+  // Helper method to reset form to initial state
+  private resetFormToInitialState() {
+    // Clear form fields immediately
+    this.newComment = { username: '', comment: '' };
+    
+    // Reset all state flags to initial state
+    this.justSubmitted = true;
+    this.isResetState = true;
+    
+    // Reset validation state to default (valid) - this ensures gray labels
+    this.validation = {
+      username: { isValid: true, errorMessage: '' },
+      comment: { isValid: true, errorMessage: '' }
+    };
+    
+    // Force change detection to ensure UI updates
+    setTimeout(() => {
+      // Keep form in gray state for visual feedback
+      this.justSubmitted = false;
+      // Keep isResetState = true so form stays gray until user starts typing
+    }, 1000); // Reduced to 1 second for better UX
   }
 
   // Modal management methods
@@ -526,22 +574,26 @@ export class CardComponent implements OnInit, OnDestroy {
   //2c- Helper method to get validation CSS class
   // Helper method to get validation CSS class
   getValidationClass(field: 'username' | 'comment'): string { 
-    // If just submitted, always return gray
+    // If just submitted, always return gray (post-submission feedback)
     if (this.justSubmitted) {
       return 'force-gray';
     }
     
-    
-    // Default state or when field is empty return gray
+    // Initial state or when field is empty - return gray
     if (this.isResetState || this.newComment[field].trim().length === 0) {
       return 'force-gray';
     }
     
-    // Check validation state
-    if (!this.validation[field].isValid) {
-      return 'invalid-state'; // When user input is invalid
+    // Only show validation colors when user has typed something
+    if (this.newComment[field].trim().length > 0) {
+      // Check validation state for active input
+      if (!this.validation[field].isValid) {
+        return 'invalid-state'; // Red for invalid input
+      }
+      return 'valid-state'; // Green for valid input
     }
     
-    return 'valid-state'; // When user input is valid
+    // Default to gray
+    return 'force-gray';
   }
 }
