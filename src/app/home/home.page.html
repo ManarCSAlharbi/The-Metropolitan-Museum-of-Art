@@ -11,29 +11,26 @@
 <ion-content [fullscreen]="true" >
   <!-- Main artwork list with infinite scroll -->
    
-  <ng-container *ngIf="artworks.length; else skeletonLoader">
+  @if (artworks.length) {
     <div class="artwork-grid">
-      <app-card 
-        *ngFor="let art of artworks; let i = index"
-        class="card-animate"
-        [style.animation-delay.ms]="i * 100"
-        [artwork]="art"
-        [hidden]="!art.primaryImageSmall && !art.primaryImage">
-      </app-card>
+      @for (art of artworks; track art.objectID; let i = $index) {
+        <app-card 
+          class="card-animate"
+          [style.animation-delay.ms]="i * 100"
+          [artwork]="art"
+          [hidden]="!art.primaryImageSmall && !art.primaryImage">
+        </app-card>
+        
+
+      }
+
+      
+    
+    
     </div>
-
-    <!-- Infinite Scroll triggers loadMore -->
-    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMore($event)">
-      <ion-infinite-scroll-content
-        loadingSpinner="crescent"
-        loadingText="Loading more artworks...">
-      </ion-infinite-scroll-content>
-    </ion-infinite-scroll>
-  </ng-container>
-
-  <!-- Skeleton loader matching card size -->
-  <ng-template #skeletonLoader>
-    <ng-container *ngFor="let i of [1,2,3,4,5]">
+  } @else {
+    <!-- Skeleton loader matching card size -->
+    @for (i of [1,2,3,4,5]; track i) {
       <ion-card>
         <ion-card-header>
           <!-- image placeholder -->
@@ -60,6 +57,21 @@
           </ion-skeleton-text>
         </ion-card-content>
       </ion-card>
-    </ng-container>
-  </ng-template>
+    }
+  }
+
+            
+    <!-- Infinite Scroll triggers loadMore -->
+  <ion-infinite-scroll 
+            threshold="20px"
+            (ionInfinite)="loadMore($event)">
+      <ion-infinite-scroll-content 
+        loadingSpinner="crescent"
+        loadingText="Loading more artworks..."
+        style="padding-bottom: 5cm;"
+        
+        >
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
 </ion-content>

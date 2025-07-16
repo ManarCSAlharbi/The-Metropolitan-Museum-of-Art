@@ -1,13 +1,27 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { ApiService, Artwork } from '../services/api/api.service';
 import { CardComponent } from '../componants/card/card.component';
-
+import { IonInfiniteScroll, IonInfiniteScrollContent, IonContent, IonToolbar, IonHeader, IonTitle, IonCard, IonCardHeader, IonSkeletonText, IonCardContent } from "@ionic/angular/standalone";
+import { IonicModule } from '@ionic/angular';
 @Component({
   selector: 'app-home', // Changed from app-tab1 to app-home
   standalone: true,
-  imports: [IonicModule, CommonModule, CardComponent],
+  imports: [
+    
+    
+     IonCardContent,
+      IonSkeletonText,
+       IonCardHeader,
+        IonCard,
+         IonTitle, 
+         IonHeader,
+          IonToolbar,
+           IonContent,
+            IonInfiniteScrollContent,
+             IonInfiniteScroll,
+               CommonModule,
+                CardComponent],
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss']
 })
@@ -33,12 +47,14 @@ export class HomePage implements OnInit { // Changed from Tab1Page to HomePage
 
   // Handle infinite scroll to load more artworks
   loadMore(event: any) {
+    console.log('Loading more artworks...');
+    
     const infiniteScroll = event.target as any;
     const remaining = this.maxArtworks - this.artworks.length;
-    
+    // If we've reached the maximum number of artworks, disable further loading
     if (remaining <= 0) {
       infiniteScroll.complete();
-      infiniteScroll.disabled = true;
+      infiniteScroll.disabled = true; 
       return;
     }
     
@@ -52,7 +68,7 @@ export class HomePage implements OnInit { // Changed from Tab1Page to HomePage
         }
       },
       error: err => {
-        console.error('Error loading more artworks', err);
+        console.log('Error loading more artworks', err);
         infiniteScroll.complete();
       }
     });

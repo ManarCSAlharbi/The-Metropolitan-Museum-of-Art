@@ -25,54 +25,13 @@ ion-card {
   }
 }
 
-.card-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 12px 16px;
-  width: 100%;
-}
-
-.text-section {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-
-  ion-card-title {
-    font-weight: 600;
-    font-size: 1.1rem;
-  }
-
-  ion-card-subtitle {
-    font-size: 0.9rem;
-    color: #666;
-  }
-}
-
 /* Likes Section */
-.likes-section, .likes-section-modal {
+.likes-section {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.likes-section {
   margin-top: 8px;
   padding: 8px 0;
-}
-
-.likes-section-modal {
-  margin: 16px 0;
-  padding: 12px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  
-  .likes-count {
-    font-size: 1rem;
-    color: #333;
-    font-weight: 600;
-  }
 }
 
 .like-button, .remove-button {
@@ -147,28 +106,7 @@ ion-title {
   padding: 16px;
 }
 
-.modal-close-button {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 1000;
-  font-size: 24px;
-  cursor: pointer;
-  
-  &:hover {
-    color: var(--ion-color-teal-shade, #2f3433);
-  }
-}
-
 /* Forms & Inputs */
-.comment-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin: 16px ;
-}
-
  ion-input {
     --fill: outline;
   --border-color: #6d6262;

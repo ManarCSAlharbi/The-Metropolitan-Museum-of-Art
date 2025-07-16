@@ -8,23 +8,24 @@
 
 <ion-content [fullscreen]="true">
   <!-- Display liked artworks -->
-  <div class="liked-artworks-container" *ngIf="likedArtworks.length > 0; else noLikedArtworks">
-    <app-card 
-      *ngFor="let artwork of likedArtworks; trackBy: trackByObjectId"
-      [artwork]="artwork"
-      [showRemoveButton]="true"
-      class="liked-artwork-card">
-    </app-card>
-  </div>
-
-  <!-- No liked artworks message -->
-  <ng-template #noLikedArtworks>
+  @if (likedArtworks.length > 0) {
+    <div class="liked-artworks-container">
+      @for (artwork of likedArtworks; track artwork.objectID) {
+        <app-card 
+          [artwork]="artwork"
+          [showRemoveButton]="true"
+          class="liked-artwork-card">
+        </app-card>
+      }
+    </div>
+  } @else {
+    <!-- No liked artworks message -->
     <div class="no-liked-artworks">
       <ion-text color="medium">
         <h2>No Liked Artworks Yet</h2>
         <p>Start exploring and like artworks to see them here.</p>
       </ion-text>
     </div>
-  </ng-template>
+  }
 </ion-content>
 
