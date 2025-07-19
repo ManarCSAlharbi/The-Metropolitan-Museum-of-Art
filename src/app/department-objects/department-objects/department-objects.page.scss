@@ -1,0 +1,111 @@
+/* Header styling */
+ion-header {
+  background: var(--ion-color-teal);
+}
+
+.title-text {
+  text-align: center;
+  font-family: 'Dancing Script', cursive;
+  font-size: 20px;
+  color: white;
+}
+
+/* Content containers */
+.loading-container, 
+.error-container, 
+.no-results-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  text-align: center;
+  padding: 20px;
+  
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    margin: 16px 0 8px 0;
+    font-weight: 600;
+  }
+  
+  p {
+    margin: 8px 0 24px 0;
+    color: #666;
+    line-height: 1.5;
+  }
+  
+  ion-button {
+    margin-top: 16px;
+  }
+}
+
+/* Artworks grid styling */
+.artworks-grid {
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  
+  .artwork-card {
+    margin: 0;
+    border-radius: 16px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .artworks-grid {
+    padding: 12px;
+    
+    ion-col {
+      padding: 6px;
+    }
+  }
+  
+  .title-text {
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .artworks-grid {
+    padding: 16px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .artworks-grid {
+    ion-col[size-lg="4"] {
+      max-width: 33.333%;
+    }
+  }
+}
+
+/* Loading animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.artwork-card {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Back button styling */
+ion-back-button {
+  --color: white;
+}

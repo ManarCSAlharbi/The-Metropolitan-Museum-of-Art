@@ -21,6 +21,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('../liked-artworks/liked-artworks.page').then((m) => m.LikedArtworksPage), // Updated to LikedArtworksPage
       },
+            {
+        path: 'tab4',
+        loadComponent: () =>
+          import('src/app/departments/departments/departments.page').then((m) => m.DepartmentsPage),
+      },
+    
       {
         path: '',
         redirectTo: 'tab1',
@@ -28,6 +34,13 @@ export const routes: Routes = [
       },
     ],
   },
+
+    {
+    path: 'department-objects/:id',
+    loadComponent: () =>
+      import('src/app/department-objects/department-objects/department-objects.page').then((m) => m.DepartmentObjectsPage),
+  },
+  
   {
     path: '',
     redirectTo: '/tabs/tab1',

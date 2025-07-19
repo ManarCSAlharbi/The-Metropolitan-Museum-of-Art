@@ -1,0 +1,62 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="teal">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab4"></ion-back-button>
+    </ion-buttons>
+    <ion-title align="center">
+      <div class="title-text">{{ departmentName || 'Department Artworks' }}</div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <ion-spinner name="circular"></ion-spinner>
+      <p>Loading artworks...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error && !isLoading) {
+    <div class="error-container">
+      <ion-text color="danger">
+        <h3>Oops! Something went wrong</h3>
+        <p>{{ error }}</p>
+      </ion-text>
+      <ion-button (click)="onRetry()" color="teal">
+        Try Again
+      </ion-button>
+    </div>
+  }
+
+  <!-- Artworks Grid -->
+  @if (artworks.length > 0 && !isLoading) {
+    <ion-grid class="artworks-grid">
+      <ion-row>
+        @for (artwork of artworks; track artwork.objectID) {
+          <ion-col size="12" size-md="6" size-lg="4">
+            <app-card 
+              [artwork]="artwork"
+              class="artwork-card">
+            </app-card>
+          </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+  }
+
+  <!-- No Results State -->
+  @if (artworks.length === 0 && !isLoading && !error) {
+    <div class="no-results-container">
+      <ion-text color="medium">
+        <h3>No Artworks Found</h3>
+        <p>This department doesn't have any artworks with images available.</p>
+      </ion-text>
+      <ion-button (click)="onRetry()" fill="outline" color="teal">
+        Refresh
+      </ion-button>
+    </div>
+  }
+</ion-content>

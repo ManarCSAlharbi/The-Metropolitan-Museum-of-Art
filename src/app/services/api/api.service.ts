@@ -9,6 +9,7 @@ export interface Artwork {
   primaryImage: string;
   dimensions: string;
   objectDate: string;
+  department?: string;
   // …etc.
 }
 
@@ -22,6 +23,15 @@ export interface Comment {
 export interface Like {
   item_id: string;
   likes: number;
+}
+
+export interface Department {
+  departmentId: number;
+  displayName: string;
+}
+
+export interface DepartmentResponse {
+  departments: Department[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -71,7 +81,13 @@ export class ApiService {
 
   // Get individual artwork details by ID
   getArtworkById(id: number): Observable<Artwork> {
-    return this.http.get<Artwork>(`${this.apiUrl}/objects/${id}`);
+    return this.http.get<Artwork>(`${this.apiUrl}/objects/${id}`).pipe(
+      catchError((error) => {
+        // Log the error but don't throw - let the caller handle it
+        console.warn(`Failed to fetch artwork ${id}: ${error.status} ${error.statusText}`);
+        throw error; // Re-throw so the caller's catchError can handle it
+      })
+    );
   }
 
   // Comments API methods
@@ -122,5 +138,118 @@ export class ApiService {
       })
     );
   }
+
+  // Get all departments from Metropolitan Museum API
+getDepartments(): Observable<DepartmentResponse> {
+  return this.http.get<DepartmentResponse>(`${this.apiUrl}/departments`);
+}
+
+// Get artworks by department ID - using the correct API endpoint
+getDepartmentArtworks(departmentId: number): Observable<Artwork[]> {
+  // Use the correct Metropolitan Museum API approach
+  // First try the departmentId parameter in search (some work, some don't)
+  return this.http.get<{ objectIDs: number[] }>(`${this.apiUrl}/search?departmentId=${departmentId}&hasImages=true`)
+    .pipe(
+      switchMap(res => {
+        if (!res.objectIDs || res.objectIDs.length === 0) {
+          console.log(`No objects found for department ${departmentId} using departmentId parameter`);
+          // Fallback to search terms approach
+          return this.searchByDepartmentTerms(departmentId);
+        }
+        
+        console.log(`Found ${res.objectIDs.length} objects for department ${departmentId}`);
+        // Limit to first 15 for performance
+        const ids = res.objectIDs.slice(0, 15);
+        
+        return forkJoin(ids.map(id => 
+          this.getArtworkById(id).pipe(
+            catchError((error) => {
+              console.warn(`Failed to fetch artwork ${id}:`, error.status);
+              return of(null);
+            })
+          )
+        )).pipe(
+          map(artworks => {
+            const validArtworks = artworks
+              .filter((artwork): artwork is Artwork => 
+                artwork !== null && 
+                Boolean(artwork.primaryImageSmall || artwork.primaryImage)
+              );
+            
+            console.log(`Successfully loaded ${validArtworks.length} artworks for department ${departmentId}`);
+            return validArtworks;
+          })
+        );
+      }),
+      catchError((error) => {
+        console.error(`Error with departmentId=${departmentId}, trying search terms:`, error);
+        return this.searchByDepartmentTerms(departmentId);
+      })
+    );
+}
+
+// Secondary method using search terms (fallback)
+private searchByDepartmentTerms(departmentId: number): Observable<Artwork[]> {
+  const departmentSearchTerms = this.getDepartmentSearchTerms(departmentId);
+  console.log(`Using search terms "${departmentSearchTerms}" for department ${departmentId}`);
+  
+  return this.http.get<{ objectIDs: number[] }>(`${this.apiUrl}/search?q=${encodeURIComponent(departmentSearchTerms)}&hasImages=true`)
+    .pipe(
+      switchMap(res => {
+        if (!res.objectIDs || res.objectIDs.length === 0) {
+          console.log(`No artworks found with search terms, using general fallback`);
+          return this.getFallbackArtworks(departmentId);
+        }
+        
+        const ids = res.objectIDs.slice(0, 10);
+        return forkJoin(ids.map(id => 
+          this.getArtworkById(id).pipe(
+            catchError(() => of(null))
+          )
+        )).pipe(
+          map(artworks => artworks.filter((artwork): artwork is Artwork => 
+            artwork !== null && Boolean(artwork.primaryImageSmall || artwork.primaryImage)
+          ))
+        );
+      }),
+      catchError(() => this.getFallbackArtworks(departmentId))
+    );
+}
+
+// Helper method to get search terms by department ID
+private getDepartmentSearchTerms(departmentId: number): string {
+  const departmentSearchMap: { [key: number]: string } = {
+    1: 'american decorative',
+    3: 'ancient near eastern',
+    4: 'armor weapons',
+    5: 'african oceania americas',
+    6: 'asian art china japan',
+    7: 'medieval cloisters',
+    8: 'costume fashion dress',
+    9: 'drawings prints',
+    10: 'egyptian ancient egypt',
+    11: 'european paintings',
+    12: 'european sculpture decorative',
+    13: 'greek roman classical',
+    14: 'islamic art',
+    15: 'lehman collection',
+    16: 'manuscripts books',
+    17: 'medieval art',
+    18: 'musical instruments',
+    19: 'photographs',
+    20: 'modern contemporary',
+    21: 'paintings european'
+  };
+  return departmentSearchMap[departmentId] || 'painting';
+}
+
+// Fallback method for when department search fails
+private getFallbackArtworks(departmentId: number): Observable<Artwork[]> {
+  console.log(`Using fallback method for department ${departmentId}`);
+  // Return a subset of general artworks as fallback
+  return this.getArtworks(8); // Get 8 random artworks
+}
+
+
   
 }
