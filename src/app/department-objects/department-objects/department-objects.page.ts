@@ -9,7 +9,7 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { ApiService, Artwork } from '../../services/api/api.service';
 import { CardComponent } from '../../componants/card/card.component';
-import { Subscription } from 'rxjs';
+import { Subscription, combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-department-objects',
@@ -29,7 +29,8 @@ export class DepartmentObjectsPage implements OnInit, OnDestroy {
   artworks: Artwork[] = [];
   isLoading = true;
   error: string | null = null;
-  private subscription?: Subscription;
+  private routeSubscription?: Subscription;
+  private artworkSubscription?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -37,50 +38,64 @@ export class DepartmentObjectsPage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.route.paramMap.subscribe(params => {
+    // Subscribe to both route parameters and query parameters
+    this.routeSubscription = combineLatest([
+      this.route.paramMap,
+      this.route.queryParamMap
+    ]).subscribe(([params, queryParams]) => {
       const newDepartmentId = +params.get('id')!;
-      const newDepartmentName = this.route.snapshot.queryParamMap.get('name') || '';
+      const newDepartmentName = queryParams.get('name') || '';
       
-      if (newDepartmentId !== this.departmentId) {
-        this.departmentId = newDepartmentId;
-        this.departmentName = newDepartmentName;
-        this.loadArtworks();
-      }
+      console.log(`Route changed: Department ID: ${newDepartmentId}, Name: ${newDepartmentName}`);
+      
+      // Always update and reload when parameters change
+      this.departmentId = newDepartmentId;
+      this.departmentName = newDepartmentName;
+      this.loadArtworks();
     });
-    
-    this.departmentId = +this.route.snapshot.paramMap.get('id')!;
-    this.departmentName = this.route.snapshot.queryParamMap.get('name') || '';
-    this.loadArtworks();
   }
 
   ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
+    if (this.artworkSubscription) {
+      this.artworkSubscription.unsubscribe();
     }
   }
 
   loadArtworks() {
+    console.log(`Loading artworks for department ID: ${this.departmentId}, Name: ${this.departmentName}`);
+    
     this.isLoading = true;
     this.error = null;
-    this.artworks = [];
+    this.artworks = []; // Clear previous artworks
 
-    if (this.subscription) {
-      this.subscription.unsubscribe();
+    if (this.artworkSubscription) {
+      this.artworkSubscription.unsubscribe();
     }
 
-    this.subscription = this.apiService.getDepartmentArtworks(this.departmentId).subscribe({
+    this.artworkSubscription = this.apiService.getDepartmentArtworks(this.departmentId).subscribe({
       next: (artworks) => {
+        console.log(`Received ${artworks.length} artworks for department ${this.departmentId}`);
+        
         this.artworks = artworks.filter(artwork => 
           artwork && 
           artwork.objectID && 
           artwork.title &&
           (artwork.primaryImageSmall || artwork.primaryImage)
         );
+        
+        console.log(`Filtered to ${this.artworks.length} valid artworks`);
         this.isLoading = false;
+        
+        if (this.artworks.length === 0) {
+          this.error = `No artworks found for ${this.departmentName}. This department might not have any available images.`;
+        }
       },
       error: (error) => {
         console.error('Error loading artworks:', error);
-        this.error = 'Failed to load artworks. Please try again.';
+        this.error = `Failed to load artworks for ${this.departmentName}. Please try again.`;
         this.isLoading = false;
       }
     });

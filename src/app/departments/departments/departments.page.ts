@@ -49,11 +49,17 @@ export class DepartmentsPage implements OnInit {
   }
 
   navigateToDepartment(department: Department) {
+    console.log(`Navigating to department: ${department.displayName} (ID: ${department.departmentId})`);
+    
     this.router.navigate(['/department-objects', department.departmentId], {
       queryParams: { 
         name: department.displayName,
         timestamp: Date.now()
       }
+    }).then(success => {
+      console.log(`Navigation successful: ${success}`);
+    }).catch(error => {
+      console.error('Navigation error:', error);
     });
   }
 

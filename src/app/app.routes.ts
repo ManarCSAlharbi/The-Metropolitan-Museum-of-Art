@@ -10,7 +10,7 @@ export const routes: Routes = [
     loadComponent: () => import('./departments/departments/departments.page').then( m => m.DepartmentsPage)
   },
   {
-    path: 'department-objects',
+    path: 'department-objects/:id',
     loadComponent: () => import('./department-objects/department-objects/department-objects.page').then( m => m.DepartmentObjectsPage)
   },
 ];
