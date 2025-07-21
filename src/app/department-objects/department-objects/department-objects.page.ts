@@ -24,21 +24,22 @@ import { Subscription, combineLatest } from 'rxjs';
   ]
 })
 export class DepartmentObjectsPage implements OnInit, OnDestroy {
-  departmentId!: number;
-  departmentName!: string;
-  artworks: Artwork[] = [];
-  isLoading = true;
-  error: string | null = null;
-  private routeSubscription?: Subscription;
-  private artworkSubscription?: Subscription;
+  departmentId!: number; // Department ID from route parameters
+  departmentName!: string; // Department name from query parameters
+  artworks: Artwork[] = []; // Artworks to display
+  isLoading = true; // Loading state
+  error: string | null = null; // Error message if loading fails
+  private routeSubscription?: Subscription; // Subscription for route changes
+  private artworkSubscription?: Subscription; // Subscription for artwork loading
 
   constructor(
-    private route: ActivatedRoute,
-    private apiService: ApiService
+    private route: ActivatedRoute, // ActivatedRoute to access route parameters and query parameters
+    private apiService: ApiService // ApiService to fetch artworks
   ) {}
 
   ngOnInit() {
     // Subscribe to both route parameters and query parameters
+    // This allows us to react to changes in either the department ID or name
     this.routeSubscription = combineLatest([
       this.route.paramMap,
       this.route.queryParamMap
@@ -74,11 +75,11 @@ export class DepartmentObjectsPage implements OnInit, OnDestroy {
     if (this.artworkSubscription) {
       this.artworkSubscription.unsubscribe();
     }
-
+// Fetch artworks for the current department ID
     this.artworkSubscription = this.apiService.getDepartmentArtworks(this.departmentId).subscribe({
       next: (artworks) => {
         console.log(`Received ${artworks.length} artworks for department ${this.departmentId}`);
-        
+         // Filter artworks to ensure they have valid IDs and images
         this.artworks = artworks.filter(artwork => 
           artwork && 
           artwork.objectID && 
@@ -87,7 +88,7 @@ export class DepartmentObjectsPage implements OnInit, OnDestroy {
         );
         
         console.log(`Filtered to ${this.artworks.length} valid artworks`);
-        this.isLoading = false;
+        this.isLoading = false; // Set loading to false after artworks are loaded
         
         if (this.artworks.length === 0) {
           this.error = `No artworks found for ${this.departmentName}. This department might not have any available images.`;

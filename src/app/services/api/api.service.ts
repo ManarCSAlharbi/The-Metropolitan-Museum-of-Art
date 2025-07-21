@@ -43,7 +43,7 @@ export class ApiService {
   constructor(private http: HttpClient) {}
 
   // Get random batch of artworks for home page
-  getArtworks(batchSize: number = 10): Observable<Artwork[]> {
+  getArtworks(batchSize: number = 5): Observable<Artwork[]> {
     const params = '?q=painting&hasImages=true';
     return this.http
       .get<{ objectIDs: number[] }>(`${this.apiUrl}/search${params}`)
@@ -147,7 +147,7 @@ getDepartments(): Observable<DepartmentResponse> {
 
 // Get artworks by department ID - using correct API endpoint
 getDepartmentArtworks(departmentId: number): Observable<Artwork[]> {
-  const timestamp = Date.now();
+  const timestamp = Date.now(); 
   console.log(`[${timestamp}] API: Fetching artworks for department ID: ${departmentId}`);
   
   // Use the /objects endpoint with departmentIds parameter (correct API usage)
@@ -156,9 +156,9 @@ getDepartmentArtworks(departmentId: number): Observable<Artwork[]> {
   
   return this.http.get<{ total: number, objectIDs: number[] }>(url)
     .pipe(
-      switchMap(res => {
+      switchMap(res => { // Handle the response
         console.log(`[${timestamp}] API: Received response for department ${departmentId}:`, res);
-        
+        // Check if objectIDs exist and are not empty
         if (!res.objectIDs || res.objectIDs.length === 0) {
           console.log(`[${timestamp}] API: No objects found for department ${departmentId}`);
           return of([]);
@@ -166,7 +166,7 @@ getDepartmentArtworks(departmentId: number): Observable<Artwork[]> {
         
         console.log(`[${timestamp}] API: Found ${res.objectIDs.length} objects for department ${departmentId}`);
         
-        // Limit to first 15 for performance (reduced from 20)
+        // Limit to first 15 
         const ids = res.objectIDs.slice(0, 15);
         console.log(`[${timestamp}] API: Processing first ${ids.length} objects`);
         
@@ -178,11 +178,11 @@ getDepartmentArtworks(departmentId: number): Observable<Artwork[]> {
             })
           )
         )).pipe(
-          map(artworks => {
+          map(artworks => { // Filter out any null artworks
             const validArtworks = artworks
               .filter((artwork): artwork is Artwork => 
                 artwork !== null && 
-                Boolean(artwork.primaryImageSmall || artwork.primaryImage)
+                Boolean(artwork.primaryImageSmall || artwork.primaryImage) // Ensure artwork has at least one image
               );
             
             console.log(`[${timestamp}] API: Returning ${validArtworks.length} valid artworks for department ${departmentId}`);

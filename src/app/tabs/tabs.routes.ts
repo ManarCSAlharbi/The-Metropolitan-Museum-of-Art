@@ -35,9 +35,10 @@ export const routes: Routes = [
     ],
   },
 
+// Route for individual artwork details
     {
-    path: 'department-objects/:id',
-    loadComponent: () =>
+    path: 'department-objects/:id', // Updated to department-objects/:id
+    loadComponent: () => // Lazy load the DepartmentObjectsPage component
       import('src/app/department-objects/department-objects/department-objects.page').then((m) => m.DepartmentObjectsPage),
   },
   

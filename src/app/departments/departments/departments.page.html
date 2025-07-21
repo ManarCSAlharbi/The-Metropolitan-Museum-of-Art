@@ -27,30 +27,18 @@
     </div>
   }
 
-  <!-- Departments Grid -->
-  @if (departments.length > 0 && !isLoading) {
-    <ion-grid class="departments-grid">
-      <ion-row>
-        @for (department of departments; track department.departmentId) {
-          <ion-col size="12" size-md="6" size-lg="4">
-            <ion-card 
-              class="department-card"
-              (click)="navigateToDepartment(department)">
-              <ion-card-header>
-                <ion-card-title>{{ department.displayName }}</ion-card-title>
-              </ion-card-header>
-              <ion-card-content>
-                <ion-button 
-                  fill="clear" 
-                  color="teal"
-                  expand="block">
-                  Explore Artworks
-                </ion-button>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        }
-      </ion-row>
-    </ion-grid>
-  }
+
+ <!-- Departments List -->
+  <ion-list class="department-list" *ngIf="departments.length > 0 && !isLoading">
+    <ion-item>  <ion-label>{{ departments[0].displayName }}</ion-label></ion-item>
+    <ion-item 
+      *ngFor="let department of departments; trackBy: trackByDepartmentId" 
+      (click)="navigateToDepartment(department)">
+      <ion-label>{{ department.displayName }}</ion-label>
+    </ion-item>
+    <ion-item>  <ion-label>{{ departments[departments.length-1].displayName }}</ion-label></ion-item>
+  </ion-list>
+
+
+  
 </ion-content>

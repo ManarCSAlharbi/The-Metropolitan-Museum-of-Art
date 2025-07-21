@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { CardComponent } from './card.component';
+import { AlertController,Platform } from '@ionic/angular/standalone';
+
+
 
 describe('CardComponent', () => {
   let component: CardComponent;

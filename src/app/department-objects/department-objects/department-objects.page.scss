@@ -4,9 +4,8 @@ ion-header {
 }
 
 .title-text {
-  text-align: center;
-  font-family: 'Dancing Script', cursive;
-  font-size: 20px;
+  text-align: left;
+  font-size: 18px;
   color: white;
 }
 
@@ -49,6 +48,7 @@ ion-header {
   margin: 0 auto;
   
   .artwork-card {
+    padding-top: 20px;
     margin: 0;
     border-radius: 16px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
