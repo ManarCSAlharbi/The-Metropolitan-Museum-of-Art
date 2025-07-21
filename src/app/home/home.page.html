@@ -8,14 +8,31 @@
   </ion-toolbar>
 </ion-header>
 
+
 <ion-content [fullscreen]="true" >
   
+<!-- Error State - dosent works !!!!!!!!!!! -->
+  @if (error && !isLoading) {
+    <div class="error-container">
+      <ion-text color="danger">
+        <h3>Oops! Something went wrong</h3>
+        <p>{{ error }}</p>
+      </ion-text>
+      <ion-button (click)="onRetry()" color="teal">
+        Try Again
+      </ion-button>
+    </div>
+  }
+
+
   <!-- Main artwork list with infinite scroll -->
   @if (artworks.length) {
     <div class="artwork-grid">
       @for (art of artworks; track art.objectID; let i = $index) {
         <app-card 
           class="card-animate"
+          [departmentName]="art.department" 
+          [objectURL]="art.objectURL"
           [style.animation-delay.ms]="i * 100"
           [artwork]="art"
           [hidden]="!art.primaryImageSmall && !art.primaryImage">
@@ -25,7 +42,11 @@
       }
     
     </div>
+
   } @else {
+      <!-- Spacer -->
+  <div class="spacer"></div>
+  
     <!-- Skeleton loader matching card size -->
     @for (i of [1,2,3,4,5]; track i) {
       <ion-card>

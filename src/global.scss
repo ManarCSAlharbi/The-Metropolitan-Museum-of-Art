@@ -1,3 +1,12 @@
+ion-alert::part(button)[role="cancel"],
+ion-alert::part(button).alert-button.secondary,
+.alert-button.alert-button.secondary {
+  color: #666 !important;
+}
+// Ensure Ionic alert danger button is red globally
+.alert-button.danger {
+  color: #eb445a !important;
+}
 /*
  * App Global CSS
  * ----------------------------------------------------------------------------
@@ -153,4 +162,3 @@ ion-searchbar {
   height: auto !important;
   width: 100% !important;
 }
-

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild, input } from '@angular/core';
 import {
   IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
   IonButton, IonIcon, IonModal, IonHeader, IonToolbar,
@@ -19,10 +19,12 @@ import { HttpClient } from '@angular/common/http';
   selector: 'app-card',
   standalone: true,
   imports: [
+  
     IonList, IonTextarea, IonInput, IonButtons,
     IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
     IonButton, IonIcon, IonModal, IonHeader, IonToolbar,
     IonContent, IonItem, IonLabel, IonTitle,
+    
     CommonModule, FormsModule
   ],
   templateUrl: './card.component.html',
@@ -33,6 +35,7 @@ export class CardComponent implements OnInit, OnDestroy {
   @Input() artwork!: any;
   @Input() showRemoveButton: boolean = false; // Show remove button in Tab3
   @Input() departmentName?: string; // New input for department name
+  @Input() objectURL?: string; // Optional input for object URL
   @ViewChild(IonModal) modal?: IonModal;
 
   comments: Comment[] = [];
@@ -302,6 +305,8 @@ export class CardComponent implements OnInit, OnDestroy {
             {
               text: 'Yes, Remove',
               cssClass: 'danger',
+              
+
               handler: () => {
                 this.performToggleLike();
               }

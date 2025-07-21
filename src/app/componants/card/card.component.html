@@ -5,10 +5,10 @@
        onerror="this.src='assets/icon/favicon.png'" />
 
   <ion-card-header>
-    <ion-card-title>{{ artwork.title || 'Untitled' }}</ion-card-title>
-    <ion-card-subtitle>{{ artwork.artistDisplayName || 'Unknown Artist' }}</ion-card-subtitle>
-    <ion-card-subtitle *ngIf="departmentName">{{ departmentName }}</ion-card-subtitle>
-    
+    <ion-card-title color="teal">{{ artwork.title || 'Untitled' }}</ion-card-title>
+    <ion-card-subtitle><strong>Artist:</strong> {{ artwork.artistDisplayName || 'Unknown Artist' }}</ion-card-subtitle>
+    <ion-card-subtitle ><strong>Department:</strong> {{ departmentName }}</ion-card-subtitle>
+
     <!-- Likes Section -->
     <div class="likes-section">
       <ion-button 
@@ -40,8 +40,8 @@
           class="remove-icon">
         </ion-icon>
       </ion-button>
-      
-      <span class="likes-count">{{ likes }}</span>
+
+      <span class="likes-count" >{{ likes }}</span>
     </div>
   </ion-card-header>
 
@@ -78,11 +78,13 @@
              alt="Artwork"
              onerror="this.src='assets/icon/favicon.png'" />
         <h2><strong>{{ artwork?.title || 'Untitled' }}</strong></h2>
-        
         <h3 class="h3">{{ artwork?.artistDisplayName || 'Unknown Artist' }}</h3>
+            
         <p><strong>Dimensions:</strong> {{ artwork?.dimensions || 'Not specified' }}</p>
         <p><strong>Date:</strong> {{ artwork?.objectDate || 'Unknown date' }}</p>
- 
+        <a [href]="objectURL" *ngIf="objectURL" target="_blank" rel="noopener" class="object-link ">View Artwork in Museum</a>
+      <!-- Spacer -->
+       <div class="spacer"></div>
         <h3>Add Comment</h3>
       
         <ion-input 

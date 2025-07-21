@@ -10,6 +10,7 @@ export interface Artwork {
   dimensions: string;
   objectDate: string;
   department?: string;
+  objectURL?: string;
   // …etc.
 }
 
@@ -54,6 +55,10 @@ export class ApiService {
         }),
         mergeMap(ids => from(ids)),
         mergeMap(id => this.getArtworkById(id)),
+        map((artwork: Artwork) => ({
+          ...artwork,
+          objectURL: `https://www.metmuseum.org/art/collection/search/${artwork.objectID}`
+        })),
         filter((artwork: Artwork) => Boolean(artwork.primaryImageSmall || artwork.primaryImage)),
         toArray()
       );
@@ -82,6 +87,10 @@ export class ApiService {
   // Get individual artwork details by ID
   getArtworkById(id: number): Observable<Artwork> {
     return this.http.get<Artwork>(`${this.apiUrl}/objects/${id}`).pipe(
+      map((artwork: Artwork) => ({
+        ...artwork,
+        objectURL: `https://www.metmuseum.org/art/collection/search/${artwork.objectID}`
+      })),
       catchError((error) => {
         // Log the error but don't throw - let the caller handle it
         console.warn(`Failed to fetch artwork ${id}: ${error.status} ${error.statusText}`);
