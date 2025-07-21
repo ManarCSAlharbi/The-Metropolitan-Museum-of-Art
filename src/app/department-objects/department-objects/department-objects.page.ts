@@ -77,23 +77,29 @@ export class DepartmentObjectsPage implements OnInit, OnDestroy {
     }
 // Fetch artworks for the current department ID
     this.artworkSubscription = this.apiService.getDepartmentArtworks(this.departmentId).subscribe({
-      next: (artworks) => {
-        console.log(`Received ${artworks.length} artworks for department ${this.departmentId}`);
-         // Filter artworks to ensure they have valid IDs and images
-        this.artworks = artworks.filter(artwork => 
-          artwork && 
-          artwork.objectID && 
-          artwork.title &&
-          (artwork.primaryImageSmall || artwork.primaryImage)
-        );
-        
-        console.log(`Filtered to ${this.artworks.length} valid artworks`);
-        this.isLoading = false; // Set loading to false after artworks are loaded
-        
-        if (this.artworks.length === 0) {
-          this.error = `No artworks found for ${this.departmentName}. This department might not have any available images.`;
-        }
-      },
+next: (artworks) => {
+  console.log(`Received ${artworks.length} artworks for department ${this.departmentId}`);
+  // Collect up to 15 valid artworks with images, without using slice
+  const validArtworks: Artwork[] = [];
+  // Filter artworks to ensure they have required properties
+  for (const artwork of artworks) {
+    if (
+      artwork &&
+      artwork.objectID &&
+      artwork.title &&
+      (artwork.primaryImageSmall || artwork.primaryImage)
+    ) {
+      validArtworks.push(artwork); // Add valid artwork
+      if (validArtworks.length === 15) break; // Limit to 15 artworks
+    }
+  }
+  this.artworks = validArtworks; // Assign filtered artworks to the component
+  console.log(`Filtered to ${this.artworks.length} valid artworks`);
+  this.isLoading = false;
+  if (this.artworks.length === 0) {
+    this.error = `No artworks found for ${this.departmentName}. This department might not have any available images.`;
+  }
+},
       error: (error) => {
         console.error('Error loading artworks:', error);
         this.error = `Failed to load artworks for ${this.departmentName}. Please try again.`;

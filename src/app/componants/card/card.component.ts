@@ -32,6 +32,7 @@ export class CardComponent implements OnInit, OnDestroy {
   
   @Input() artwork!: any;
   @Input() showRemoveButton: boolean = false; // Show remove button in Tab3
+  @Input() departmentName?: string; // New input for department name
   @ViewChild(IonModal) modal?: IonModal;
 
   comments: Comment[] = [];

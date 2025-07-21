@@ -1,6 +1,7 @@
 /* Header styling */
 ion-header {
   background: var(--ion-color-teal);
+  
 }
 
 .title-text {
@@ -44,10 +45,13 @@ ion-header {
 /* Artworks grid styling */
 .artworks-grid {
   padding: 16px;
+  margin-top: 16px;
   max-width: 1400px;
   margin: 0 auto;
   
   .artwork-card {
+    margin-top: 50px; /* Add top margin to prevent content from hiding behind header */
+
     padding-top: 20px;
     margin: 0;
     border-radius: 16px;
@@ -78,6 +82,7 @@ ion-header {
 @media (min-width: 769px) and (max-width: 1024px) {
   .artworks-grid {
     padding: 16px;
+    
   }
 }
 
@@ -108,4 +113,8 @@ ion-header {
 /* Back button styling */
 ion-back-button {
   --color: white;
+}
+.spacer {
+  height: 40px; /* Spacer to push content down */
+  width: 100%;
 }

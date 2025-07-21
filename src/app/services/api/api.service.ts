@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, filter, forkJoin, from, map, mergeMap, of, switchMap, toArray, catchError } from 'rxjs';
+import { Observable, filter, forkJoin, from, map, mergeMap, of, switchMap, toArray, catchError, delay } from 'rxjs';
 export interface Artwork {
   objectID: number;
   title: string;
@@ -156,35 +156,69 @@ getDepartmentArtworks(departmentId: number): Observable<Artwork[]> {
   
   return this.http.get<{ total: number, objectIDs: number[] }>(url)
     .pipe(
-      switchMap(res => { // Handle the response
+      switchMap(res => {
         console.log(`[${timestamp}] API: Received response for department ${departmentId}:`, res);
-        // Check if objectIDs exist and are not empty
         if (!res.objectIDs || res.objectIDs.length === 0) {
           console.log(`[${timestamp}] API: No objects found for department ${departmentId}`);
           return of([]);
         }
-        
         console.log(`[${timestamp}] API: Found ${res.objectIDs.length} objects for department ${departmentId}`);
+
+        // Shuffle and limit to first 15 results for retry/randomization
+        const shuffled = res.objectIDs.sort(() => Math.random() - 0.5); // Shuffle the IDs of artworks
+        const ids = shuffled.slice(0, 15); // Limit to 15 IDs
+        console.log(`[${timestamp}] API: Processing first ${ids.length} shuffled objects`);
+
+        // Fetch in batches of 5 with delay between batches
+        const batchSize = 5;
+        const batches: number[][] = [];
+        for (let i = 0; i < ids.length; i += batchSize) { // Create batches of 5
+          batches.push(ids.slice(i, i + batchSize));
+        }
+
+        let allArtworks: (Artwork | null)[] = [];
+        let batchIndex = 0;
+
+        // Recursive function to fetch artworks in batches
+        const fetchNextBatch = (): Observable<(Artwork | null)[]> => {
+          if (batchIndex >= batches.length) {
+            return of(allArtworks);
+          }
+          // Fetch the current batch
+          const currentBatch = batches[batchIndex];
+          batchIndex++;
         
-        // Limit to first 15 
-        const ids = res.objectIDs.slice(0, 15);
-        console.log(`[${timestamp}] API: Processing first ${ids.length} objects`);
-        
-        return forkJoin(ids.map(id => 
-          this.getArtworkById(id).pipe(
-            catchError((error) => {
-              console.warn(`[${timestamp}] API: Failed to fetch artwork ${id}:`, error.status);
-              return of(null);
+          return forkJoin(currentBatch.map(id =>
+            this.getArtworkById(id).pipe(
+              catchError((error) => {
+                console.warn(`[${timestamp}] API: Failed to fetch artwork ${id}:`, error.status);
+                return of(null);
+              })
+            )
+          )).pipe(
+            switchMap(results => {
+              allArtworks = allArtworks.concat(results); // Collect results from this batch
+              if (batchIndex < batches.length) {
+
+                // Delay 500ms between batches
+                return of(null).pipe(
+                  delay(500),
+                  switchMap(() => fetchNextBatch())
+                );
+              } else {
+                return of(allArtworks); // Return all collected artworks
+              }
             })
-          )
-        )).pipe(
-          map(artworks => { // Filter out any null artworks
+          );
+        };
+
+        return fetchNextBatch().pipe(
+          map(artworks => {
             const validArtworks = artworks
-              .filter((artwork): artwork is Artwork => 
-                artwork !== null && 
-                Boolean(artwork.primaryImageSmall || artwork.primaryImage) // Ensure artwork has at least one image
+              .filter((artwork): artwork is Artwork =>
+                artwork !== null &&
+                Boolean(artwork.primaryImageSmall || artwork.primaryImage)
               );
-            
             console.log(`[${timestamp}] API: Returning ${validArtworks.length} valid artworks for department ${departmentId}`);
             return validArtworks;
           })

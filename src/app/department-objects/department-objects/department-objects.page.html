@@ -1,4 +1,4 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" >
   <ion-toolbar color="teal">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/tab4"></ion-back-button>
@@ -30,6 +30,7 @@
       </ion-button>
     </div>
   }
+  <div class="spacer"></div>
 
   <!-- Artworks Grid -->
   @if (artworks.length > 0 && !isLoading) {
@@ -39,7 +40,10 @@
           <ion-col size="12" size-md="6" size-lg="4">
             <app-card 
               [artwork]="artwork"
-              class="artwork-card">
+              [departmentName]="departmentName"
+              class="artwork-card"
+              style="margin-top: auto;" 
+              >
             </app-card>
           </ion-col>
         }

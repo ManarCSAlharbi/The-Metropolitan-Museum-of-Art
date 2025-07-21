@@ -7,6 +7,7 @@
   <ion-card-header>
     <ion-card-title>{{ artwork.title || 'Untitled' }}</ion-card-title>
     <ion-card-subtitle>{{ artwork.artistDisplayName || 'Unknown Artist' }}</ion-card-subtitle>
+    <ion-card-subtitle *ngIf="departmentName">{{ departmentName }}</ion-card-subtitle>
     
     <!-- Likes Section -->
     <div class="likes-section">
@@ -77,6 +78,7 @@
              alt="Artwork"
              onerror="this.src='assets/icon/favicon.png'" />
         <h2><strong>{{ artwork?.title || 'Untitled' }}</strong></h2>
+        
         <h3 class="h3">{{ artwork?.artistDisplayName || 'Unknown Artist' }}</h3>
         <p><strong>Dimensions:</strong> {{ artwork?.dimensions || 'Not specified' }}</p>
         <p><strong>Date:</strong> {{ artwork?.objectDate || 'Unknown date' }}</p>

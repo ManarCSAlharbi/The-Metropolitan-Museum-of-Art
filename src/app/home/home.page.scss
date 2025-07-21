@@ -62,9 +62,9 @@ app-card {
   
   margin-top: 50px; /* Add top margin to prevent content from hiding behind header */
   
-  app-card {
-    margin: 0; /* Remove individual margins since grid handles spacing */
-  }
+  //app-card {
+  //  margin: 0; /* Remove individual margins since grid handles spacing */
+  //}
 }
 
 
