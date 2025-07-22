@@ -1,8 +1,12 @@
 @if(artwork && artwork.objectID){
   <ion-card >
-  <img [src]="artwork.primaryImageSmall || artwork.primaryImage" 
-       alt="Artwork" 
-       onerror="this.src='assets/icon/favicon.png'" />
+    <img [ngSrc]="artwork.primaryImageSmall || artwork.primaryImage || 'assets/icon/favicon.png'" 
+         [alt]="artwork.title || 'Artwork'" 
+         width="400" 
+         height="300"
+         priority
+         class="optimized-image"
+         />
 
   <ion-card-header>
     <ion-card-title color="teal">{{ artwork.title || 'Untitled' }}</ion-card-title>
@@ -77,9 +81,11 @@
       </ion-header>
 
       <ion-content class="ion-padding">
-        <img [src]="artwork?.primaryImageSmall || artwork?.primaryImage" 
-             alt="Artwork"
-             onerror="this.src='assets/icon/favicon.png'" />
+        <img [ngSrc]="artwork?.primaryImageSmall || artwork?.primaryImage || 'assets/icon/favicon.png'" 
+             [alt]="artwork?.title || 'Artwork'"
+             width="400"
+             height="300" 
+             class="modal-optimized-image" />
         <h2 class ="h2"color="teal"><strong>{{ artwork?.title || 'Untitled' }}</strong></h2>
         <h3 class="h3">{{ artwork?.artistDisplayName || 'Unknown Artist' }}</h3>
             
@@ -88,7 +94,12 @@
         <!-- Card Component displays it as a clickable link --> 
          <!-- target="_blank" - Opens the link in a new browser tab -->
           <!--rel ="noopener" - Prevents the new page from having access to the original page's window object, improving security --> 
-        <a [href]="objectURL" *ngIf="objectURL" target="_blank" rel="noopener" class="object-link ">View Artwork in Museum</a>
+          <div class="object-link-row">
+            <a [href]="objectURL" *ngIf="objectURL" target="_blank" rel="noopener" class="object-link ">View Artwork in Museum</a>
+            <ion-icon name="open-outline" ></ion-icon>
+          </div>
+          
+      
       <!-- Spacer -->
        <div class="spacer"></div>
         <h3>Add Comment</h3>

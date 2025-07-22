@@ -8,12 +8,25 @@ ion-card {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   min-height: 400px;
   
+  /* Optimized image styling */
+  .optimized-image, .fallback-image {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    object-fit: contain;
+    display: block;
+  }
+  
+  /* Legacy img fallback */
   img {
     width: 100%;
     height: auto;
+    max-height: 300px;
     margin-bottom: 12px;
     border-radius: 12px;
-    object-fit: cover;
+    object-fit: contain;
   }
   
   ion-card-header { width: 100%; }
@@ -60,11 +73,36 @@ ion-modal::part(content) {
 }
 
 ion-content {
+  
+
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px;
   text-align: center;
+  
+  /* Modal optimized image styling */
+  .modal-optimized-image, .modal-fallback-image {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    max-height: 300px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    object-fit: contain;
+    display: block;
+  }
+  
+  /* Legacy modal img fallback */
+  img {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    max-height: 300px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    object-fit: contain;
+  }
 }
 
 /* Forms */
@@ -94,7 +132,7 @@ ion-list {
   width: 100%;
   max-width: 400px;
   max-height: 300px;
-  overflow-y: auto;
+  overflow-y: auto; 
   border: 1px solid #e0e0e0;
 }
 
@@ -138,9 +176,20 @@ ion-item {
   color: var(--ion-color-teal, teal);
 }
 
-.object-link {
+.object-link-row{
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center; /* Centers the content horizontally */
+  gap: 8px;
+  color: #007bff;
+  padding: 8px 0;
+  width: 100%; /* Ensures full width for centering */
+}
+.object-link{
   color: #007bff;
   text-decoration: underline;
-  font-weight: bold;
+  font-weight: semi-bold;
   padding: 8px 0;
+  text-align: center;
 }

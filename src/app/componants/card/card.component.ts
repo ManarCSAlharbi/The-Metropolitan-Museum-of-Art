@@ -2,29 +2,28 @@ import { Component, Input, OnInit, OnDestroy, ViewChild, input, ChangeDetectorRe
 import {
   IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
   IonButton, IonIcon, IonModal, IonHeader, IonToolbar,
-  IonContent, IonButtons, IonInput, IonTextarea, IonList, IonItem, IonLabel, IonTitle
-} from '@ionic/angular/standalone';
+  IonContent, IonButtons, IonInput, IonTextarea, IonList, IonItem, IonLabel, IonTitle, IonRow } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { close, heart, heartOutline } from 'ionicons/icons';
+import { close, heart, heartOutline, openOutline } from 'ionicons/icons';
 import { ApiService, Comment, Like } from '../../services/api/api.service';
 import { LikedArtworksService } from '../../services/liked-artworks/liked-artworks.service';
 import { LikeCountService } from '../../services/like-count/like-count.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
+
 @Component({
   selector: 'app-card',
   standalone: true,
-  imports: [
-  
+  imports: [IonRow, 
     IonList, IonTextarea, IonInput, IonButtons,
     IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
     IonButton, IonIcon, IonModal, IonHeader, IonToolbar,
     IonContent, IonItem, IonLabel, IonTitle,
     
-    CommonModule, FormsModule
+    CommonModule, FormsModule, NgOptimizedImage
   ],
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss']
@@ -55,6 +54,8 @@ export class CardComponent implements OnInit, OnDestroy {
   // 1c- Two boolean flags control the visual feedback:
   public justSubmitted: boolean = false; // Prevents validation errors after form submission
   public isResetState: boolean = true; // Tracks if form is in reset/default state
+  
+
 
   // 1c- Form validation state
   // state object to track the validity of each field
@@ -76,7 +77,7 @@ export class CardComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private cdr: ChangeDetectorRef
   ) {
-    addIcons({ close, heart, heartOutline });
+    addIcons({heart,close,openOutline,heartOutline});
   }
 
   ngOnInit() {
@@ -616,5 +617,16 @@ export class CardComponent implements OnInit, OnDestroy {
     }
     
     return 'valid-state'; // When user input is valid
+  }
+
+  // Handle image loading errors for NgOptimizedImage
+  onImageError(event: any) {
+    console.log('Optimized image failed to load, using fallback');
+    const target = event.target as HTMLImageElement;
+    if (target) {
+      // Replace with fallback image
+      target.src = 'assets/icon/favicon.png';
+      target.removeAttribute('ng-reflect-ng-src');
+    }
   }
 }
