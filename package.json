@@ -21,6 +21,7 @@
     "@angular/platform-browser": "^20.0.0",
     "@angular/platform-browser-dynamic": "^20.0.0",
     "@angular/router": "^20.0.0",
+    "@capacitor-community/image-manipulator": "^7.0.0",
     "@capacitor-community/native-audio": "^7.0.0",
     "@capacitor/android": "^7.4.2",
     "@capacitor/app": "7.0.1",

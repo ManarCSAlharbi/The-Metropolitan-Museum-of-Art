@@ -82,6 +82,9 @@
             
         <p><strong>Dimensions:</strong> {{ artwork?.dimensions || 'Not specified' }}</p>
         <p><strong>Date:</strong> {{ artwork?.objectDate || 'Unknown date' }}</p>
+        <!-- Card Component displays it as a clickable link --> 
+         <!-- target="_blank" - Opens the link in a new browser tab -->
+          <!--rel ="noopener" - Prevents the new page from having access to the original page's window object, improving security --> 
         <a [href]="objectURL" *ngIf="objectURL" target="_blank" rel="noopener" class="object-link ">View Artwork in Museum</a>
       <!-- Spacer -->
        <div class="spacer"></div>

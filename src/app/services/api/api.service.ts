@@ -10,7 +10,7 @@ export interface Artwork {
   dimensions: string;
   objectDate: string;
   department?: string;
-  objectURL?: string;
+  objectURL?: string; // URL to the artwork's page on the Met Museum website
   // …etc.
 }
 
@@ -44,23 +44,29 @@ export class ApiService {
   constructor(private http: HttpClient) {}
 
   // Get random batch of artworks for home page
-  getArtworks(batchSize: number = 5): Observable<Artwork[]> {
+  getArtworks(batchSize: number = 3): Observable<Artwork[]> {
     const params = '?q=painting&hasImages=true';
     return this.http
       .get<{ objectIDs: number[] }>(`${this.apiUrl}/search${params}`)
       .pipe(
+        delay(1000), // Add 1 second delay after getting search results
         map(res => {
           const shuffled = res.objectIDs.sort(() => Math.random() - 0.5);
           return shuffled.slice(0, batchSize);
         }),
-        mergeMap(ids => from(ids)),
-        mergeMap(id => this.getArtworkById(id)),
-        map((artwork: Artwork) => ({
-          ...artwork,
-          objectURL: `https://www.metmuseum.org/art/collection/search/${artwork.objectID}`
-        })),
-        filter((artwork: Artwork) => Boolean(artwork.primaryImageSmall || artwork.primaryImage)),
-        toArray()
+        switchMap(ids => {
+          // Fetch artworks one by one with delays instead of all at once
+          return from(ids).pipe(
+            mergeMap((id, index) => 
+              this.getArtworkById(id).pipe(
+                delay(index * 1500), // Wait 1.5 seconds between each request
+                catchError(() => of(null)) // If one fails, continue with others
+              )
+            ),
+            filter((artwork): artwork is Artwork => artwork !== null),
+            toArray()
+          );
+        })
       );
   }
 
@@ -87,8 +93,10 @@ export class ApiService {
   // Get individual artwork details by ID
   getArtworkById(id: number): Observable<Artwork> {
     return this.http.get<Artwork>(`${this.apiUrl}/objects/${id}`).pipe(
+      delay(500), // Add 500ms delay to each individual request
       map((artwork: Artwork) => ({
         ...artwork,
+        // Add the URL to each artwork
         objectURL: `https://www.metmuseum.org/art/collection/search/${artwork.objectID}`
       })),
       catchError((error) => {
@@ -148,80 +156,96 @@ export class ApiService {
     );
   }
 
-  // Get all departments from Metropolitan Museum API
+  // Get all departments 
   // Returns department ID and display name for each department
 getDepartments(): Observable<DepartmentResponse> {
   return this.http.get<DepartmentResponse>(`${this.apiUrl}/departments`);
 }
 
-// Get artworks by department ID - using correct API endpoint
+  // Get artworks for a specific department
+  // Fetches artworks in batches of 5, with a delay between batches to avoid overwhelming the API
+  // Returns an array of Artwork objects for the specified department ID
 getDepartmentArtworks(departmentId: number): Observable<Artwork[]> {
-  const timestamp = Date.now(); 
+  const timestamp = Date.now(); // Add timestamp for logging
   console.log(`[${timestamp}] API: Fetching artworks for department ID: ${departmentId}`);
   
-  // Use the /objects endpoint with departmentIds parameter (correct API usage)
+  // Creates the URL to ask the Met Museum API for all objects in a specific department
+  // Note: The API endpoint is /objects?departmentIds=ID, this part is a query parameter that filters by department
   const url = `${this.apiUrl}/objects?departmentIds=${departmentId}`;
   console.log(`[${timestamp}] API: Making request to: ${url}`);
   
+  // Make the HTTP GET request to fetch objects in the specified department
+  // Example response: { total: 5000, objectIDs: [12345, 67890, 11111, ...] }
   return this.http.get<{ total: number, objectIDs: number[] }>(url)
+  // Process the response
     .pipe(
-      switchMap(res => {
+      switchMap(res => { // Use switchMap to handle the response, transforming it
         console.log(`[${timestamp}] API: Received response for department ${departmentId}:`, res);
-        if (!res.objectIDs || res.objectIDs.length === 0) {
+        if (!res.objectIDs || res.objectIDs.length === 0) { // If no artworks exist, return an empty array 
           console.log(`[${timestamp}] API: No objects found for department ${departmentId}`);
           return of([]);
         }
+        // Log the number of objects found in the department
         console.log(`[${timestamp}] API: Found ${res.objectIDs.length} objects for department ${departmentId}`);
 
-        // Shuffle and limit to first 15 results for retry/randomization
+        // --- Shuffle and limit to first 15 results for retry/randomization
+        // Shuffle the IDs of artworks to randomize the selection
+        // randomly reorders the array
         const shuffled = res.objectIDs.sort(() => Math.random() - 0.5); // Shuffle the IDs of artworks
-        const ids = shuffled.slice(0, 15); // Limit to 15 IDs
+        const ids = shuffled.slice(0, 15); //takes only the first 15 IDs to avoid overwhelming the API
         console.log(`[${timestamp}] API: Processing first ${ids.length} shuffled objects`);
 
-        // Fetch in batches of 5 with delay between batches
-        const batchSize = 5;
-        const batches: number[][] = [];
-        for (let i = 0; i < ids.length; i += batchSize) { // Create batches of 5
-          batches.push(ids.slice(i, i + batchSize));
+        // Fetch in batches of 3 with delay between batches (reduced to avoid API blocking)
+        // Create batches of 3 IDs to fetch artworks in smaller groups
+        const batchSize = 3;
+        const batches: number[][] = []; 
+        
+        for (let i = 0; i < ids.length; i += batchSize) { // Create batches of 3
+          batches.push(ids.slice(i, i + batchSize)); 
         }
 
-        let allArtworks: (Artwork | null)[] = [];
-        let batchIndex = 0;
+        let allArtworks: (Artwork | null)[] = []; // Array to collect all artworks fetched
+        let batchIndex = 0; // Index to track which batch we're currently fetching
 
         // Recursive function to fetch artworks in batches
+        // is a function that processes one batch at a time 
         const fetchNextBatch = (): Observable<(Artwork | null)[]> => {
-          if (batchIndex >= batches.length) {
-            return of(allArtworks);
+          if (batchIndex >= batches.length) { // If we've processed all batches
+            return of(allArtworks); // done fetching all batches
           }
-          // Fetch the current batch
-          const currentBatch = batches[batchIndex];
-          batchIndex++;
+          
+          const currentBatch = batches[batchIndex]; // Get the current batch of IDs
+          batchIndex++; // Move to the next batch for the next call
         
-          return forkJoin(currentBatch.map(id =>
-            this.getArtworkById(id).pipe(
+          // forkJoin makes multiple API calls at the same time and waits for all to complete
+          return forkJoin(currentBatch.map(id => 
+            // For each ID in the current batch, fetch the artwork details
+            this.getArtworkById(id).pipe( 
+
               catchError((error) => {
                 console.warn(`[${timestamp}] API: Failed to fetch artwork ${id}:`, error.status);
                 return of(null);
               })
             )
-          )).pipe(
+          )).pipe( 
             switchMap(results => {
-              allArtworks = allArtworks.concat(results); // Collect results from this batch
+              allArtworks = allArtworks.concat(results); // adds the current batch results to our collection
+              // If more batches remain, wait 2000ms (2 seconds) to avoid API blocking
               if (batchIndex < batches.length) {
-
-                // Delay 500ms between batches
+                // Delay 2000ms between batches
                 return of(null).pipe(
-                  delay(500),
-                  switchMap(() => fetchNextBatch())
+                  delay(2000),
+                  switchMap(() => fetchNextBatch()) // Recursively fetch the next batch
                 );
-              } else {
-                return of(allArtworks); // Return all collected artworks
+              } else { // If no more batches, return all collected artworks
+                return of(allArtworks); 
               }
             })
           );
         };
 
-        return fetchNextBatch().pipe(
+        return fetchNextBatch().pipe( 
+          // Filter out any null values (failed requests)
           map(artworks => {
             const validArtworks = artworks
               .filter((artwork): artwork is Artwork =>
@@ -229,10 +253,11 @@ getDepartmentArtworks(departmentId: number): Observable<Artwork[]> {
                 Boolean(artwork.primaryImageSmall || artwork.primaryImage)
               );
             console.log(`[${timestamp}] API: Returning ${validArtworks.length} valid artworks for department ${departmentId}`);
-            return validArtworks;
+            return validArtworks; // Return only valid artworks
           })
         );
       }),
+      // If anything goes wrong with the entire process, log the error
       catchError((error) => {
         console.error(`[${timestamp}] API: Error fetching department ${departmentId}:`, error);
         return of([]);
