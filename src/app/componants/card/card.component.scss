@@ -1,17 +1,13 @@
-/* CARD STYLING */
+/* COMPACT CARD STYLING */
 ion-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: start;
   padding: 20px;
-  margin-bottom: 20px; 
+  margin-bottom: 20px;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  justify-content: space-between;
   min-height: 400px;
-  height: auto;
-
+  
   img {
     width: 100%;
     height: auto;
@@ -19,13 +15,11 @@ ion-card {
     border-radius: 12px;
     object-fit: cover;
   }
-
-  ion-card-header {
-    width: 100%;
-  }
+  
+  ion-card-header { width: 100%; }
 }
 
-/* Likes Section */
+/* Likes */
 .likes-section {
   display: flex;
   align-items: center;
@@ -41,30 +35,16 @@ ion-card {
   
   ion-icon {
     font-size: 1.2rem;
-    transition: color 0.2s ease;
     color: #666;
     
-    &[color="danger"], &.liked, &[name="heart"] {
+    &[name="heart"], &[data-icon-name="heart"], &[data-icon-liked="true"] {
       color: #ff4444 !important;
     }
   }
-}
-
-.remove-button {
-  ion-icon:hover {
-    color: #cc0000 !important;
-    transform: scale(1.1);
-  }
   
-  &:hover {
-    animation: pulse 1s infinite;
+  &[data-liked="true"] ion-icon, &.liked-state ion-icon {
+    color: #ff4444 !important;
   }
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
 }
 
 .likes-count {
@@ -73,134 +53,54 @@ ion-card {
   font-weight: 500;
 }
 
-/* MODAL STYLING */
+/* MODAL */
 ion-modal::part(content) {
-  border-radius: 0;
   max-width: 500px;
   margin: auto;
 }
 
 ion-content {
-  justify-content: space-around;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  background: #fff;
   text-align: center;
-  
-  img {
-    width: 100%;
-    height: auto;
-    margin-bottom: 12px;
-    border-radius: 12px;
-    object-fit: cover;
-  }
 }
 
-/* Artwork title styling inside modal */
-.h2 {
-  font-size: 1.4rem;
-  font-weight: 800; /* Use number instead of 'extra-bold' */
-  margin: 0 0 8px;
-  padding: 16px;
-  color: var(--ion-color-teal, teal);
-}
-
-ion-title {
-  font-size: 1.4rem;
-  font-weight: extra-bold;
-  margin: 0 0 8px;
-
-  padding: 16px;
-}
-
-/* Forms & Inputs */
- ion-input {
-    --fill: outline;
-  --border-color: #6d6262;
-  --color: #333;
-  --placeholder-color: #999;
-  margin-right: 16px;
-  text-align: left;
- }
- ion-textarea {
-
+/* Forms */
+ion-input, ion-textarea {
   --fill: outline;
   --border-color: #6d6262;
   --color: #333;
-  --placeholder-color: #999;
-  text-align: left;
   margin-right: 16px;
-  margin-top: 16px;
-  
-
+  text-align: left;
 }
+
+ion-textarea { margin-top: 16px; }
 
 ion-button[color="teal"] {
   margin: 12px auto;
   width: 100%;
   max-width: 200px;
   --background: var(--ion-color-teal, "teal");
-  --color: var(--ion-color-teal-contrast, white);
   --border-radius: 12px;
-  
-  &[disabled] {
-    opacity: 0.6;
-  }
-  
-  &:not([disabled]):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  }
 }
 
 /* Comments */
-ion-row {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin: 20px 0 10px;
-  font-weight: bold;
-  font-size: 1rem;
-}
-
 ion-list {
-  height: 100%;
   background: #f9f9f9;
   border-radius: 12px;
   padding: 12px;
   width: 100%;
   max-width: 400px;
-  max-height: 300px; /* Adjust this value as needed */
+  max-height: 300px;
   overflow-y: auto;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
-}
-
-/* Optional: Style the scrollbar for better appearance */
-ion-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-ion-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-ion-list::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 10px;
-}
-
-ion-list::-webkit-scrollbar-thumb:hover {
-  background: #555;
 }
 
 ion-item {
   --background: transparent;
   --padding-start: 16px;
-  --padding-end: 16px;
   border-bottom: 1px solid #e0e0e0;
   
   ion-label {
@@ -222,48 +122,20 @@ ion-item {
   }
 }
 
-.comment-date {
-  font-size: 0.8em;
-  color: var(--ion-color-medium);
-  margin-top: 4px;
-}
-
-/* Error Messages */
+/* Misc */
 .error-message {
   color: #ff4444;
   font-size: 0.85rem;
-  margin-top: -12px;
-  margin-bottom: 16px;
-  padding-left: 16px;
-  animation: fadeIn 0.3s ease-in-out;
   margin-top: 10px;
-  
+  padding-left: 16px;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Misc */
-h3.h3 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #333;
-  padding-bottom: 16px;
-}
-
-.danger {
-  color: #ff4444 !important;
-}
-.secondary {
-  color: #666 !important;
+.h2, ion-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+  padding: 16px;
+  color: var(--ion-color-teal, teal);
 }
 
 .object-link {
@@ -271,13 +143,4 @@ h3.h3 {
   text-decoration: underline;
   font-weight: bold;
   padding: 8px 0;
-  text-underline-offset: 4px; // Adds space between text and underline
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-.spacer {
-  height: 25px;
-  width: 100%;
 }

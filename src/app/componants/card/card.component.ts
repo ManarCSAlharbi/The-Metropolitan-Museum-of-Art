@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild, input } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild, input, ChangeDetectorRef } from '@angular/core';
 import {
   IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
   IonButton, IonIcon, IonModal, IonHeader, IonToolbar,
@@ -12,7 +12,6 @@ import { LikeCountService } from '../../services/like-count/like-count.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { AlertController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -74,8 +73,8 @@ export class CardComponent implements OnInit, OnDestroy {
     private apiService: ApiService, 
     private likedArtworksService: LikedArtworksService,
     private likeCountService: LikeCountService,
-    private alertController: AlertController,
-    private http: HttpClient
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
   ) {
     addIcons({ close, heart, heartOutline });
   }
@@ -97,14 +96,19 @@ export class CardComponent implements OnInit, OnDestroy {
     // Load comments for this artwork
     this.loadComments();
     
-    // Test the specific API endpoint for debugging
-    this.testApiEndpoint();
+    // Test the specific API endpoint for debugging - commented out
+    // this.testApiEndpoint();
     
     // Subscribe to liked artworks changes for real-time updates
     this.likedArtworksSubscription = this.likedArtworksService.getLikedArtworks().subscribe(
       (likedArtworks) => {
         if (this.artwork?.objectID) {
-          this.isLiked = likedArtworks.some(artwork => artwork.objectID === this.artwork.objectID);
+          const newIsLiked = likedArtworks.some(artwork => artwork.objectID === this.artwork.objectID);
+          if (this.isLiked !== newIsLiked) {
+            console.log(`🔄 Like state changed from ${this.isLiked} to ${newIsLiked} for artwork ${this.artwork.objectID}`);
+            this.isLiked = newIsLiked;
+            this.detectChanges();
+          }
         }
       }
     );
@@ -192,18 +196,6 @@ export class CardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Save user's like preference to localStorage for persistence
-  private saveUserLike(itemId: string, isLiked: boolean) {
-    const likedItems = JSON.parse(localStorage.getItem('likedArtworks') || '[]');
-    if (isLiked && !likedItems.includes(itemId)) {
-      likedItems.push(itemId);
-    } else if (!isLiked && likedItems.includes(itemId)) {
-      const index = likedItems.indexOf(itemId);
-      likedItems.splice(index, 1);
-    }
-    localStorage.setItem('likedArtworks', JSON.stringify(likedItems));
-  }
-
   // 4c- Real-time Validation: Validate form input as user types
   onUserInput() {
     // If just submitted, skip validation to avoid errors
@@ -282,40 +274,31 @@ export class CardComponent implements OnInit, OnDestroy {
 
 
   // 2L- Toggle like state and update global like count
-  async toggleLike() {
+  toggleLike() {
+    console.log(' TOGGLE LIKE CALLED - Android Debug');
+    console.log('Current isLiked state:', this.isLiked);
+    console.log('showRemoveButton:', this.showRemoveButton);
+    console.log('artwork ID:', this.artwork?.objectID);
     
     if (this.artwork?.objectID) {
       // If user is trying to unlike from home page, show confirmation alert
       if (this.isLiked && !this.showRemoveButton) {
+        console.log(' Showing confirmation alert for unlike');
         
-
         const artworkTitle = this.artwork.title || 'this artwork';
         const artistName = this.artwork.artistDisplayName || 'Unknown Artist';
         
-        const alert = await this.alertController.create({
-          
-          header: 'Remove from Liked Artworks',
-          message: `Are you sure you want to remove "${artworkTitle}" by ${artistName} from your liked artworks?`,
-          buttons: [
-            {
-              text: 'Cancel',
-              role: 'cancel',
-              cssClass: 'secondary'
-            },
-            {
-              text: 'Yes, Remove',
-              cssClass: 'danger',
-              
-
-              handler: () => {
-                this.performToggleLike();
-              }
-            }
-          ]
-        });
-
-        await alert.present();
+        const confirmed = confirm(`Remove from Liked Artworks\n\nAre you sure you want to remove "${artworkTitle}" by ${artistName} from your liked artworks?`);
+        
+        if (confirmed) {
+          console.log(' User confirmed unlike via native confirm');
+          this.performToggleLike();
+        } else {
+          console.log(' User cancelled unlike via native confirm');
+        }
         return;
+      } else {
+        console.log('🚀 Direct toggle (liking or Tab3 remove)');
       }
 
       // If liking or using remove button, proceed directly
@@ -325,90 +308,170 @@ export class CardComponent implements OnInit, OnDestroy {
 
   // Separated logic for actual like/unlike operation
   private performToggleLike() {
+    console.log(' PERFORM TOGGLE LIKE - Android Debug');
+    console.log('Before toggle - isLiked:', this.isLiked, 'likes:', this.likes);
+    console.log(' Artwork ID:', this.artwork?.objectID);
+    console.log(' Artwork Title:', this.artwork?.title);
+    
     if (this.artwork?.objectID) {
       // Store previous state for rollback on error
       const previousLikedState = this.isLiked;
       const previousLikeCount = this.likes;
       
-      // Optimistic update for immediate UI feedback
+      // Toggle the like state AGGRESSIVELY
       this.isLiked = !this.isLiked;
+      console.log(' STATE CHANGED - NEW isLiked:', this.isLiked);
       
       // Only increase like count when liking, don't decrease when unliking
       if (this.isLiked) {
         this.likes = this.likes + 1;
+        console.log(' LIKING - New count:', this.likes);
+      } else {
+        console.log(' UNLIKING - Count stays:', this.likes);
       }
-      // When unliking, keep the same like count (don't decrease)
+      
+      // SUPER AGGRESSIVE CHANGE DETECTION FOR ANDROID
+      console.log(' Starting aggressive change detection...');
+      this.detectChanges();
+      
+      // Force multiple change detections with delays
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          console.log(` Change detection round ${i + 1}`);
+          this.detectChanges();
+        }, i * 25);
+      }
       
       // Update services based on like state
+      console.log(' Updating services...');
       this.likeCountService.updateLikeCount(this.artwork.objectID, this.likes);
-      this.saveUserLike(this.artwork.objectID.toString(), this.isLiked); 
       
       if (this.isLiked) {
+        console.log(' Adding artwork to service...');
         this.likedArtworksService.addLikedArtwork(this.artwork);
+        console.log(' Added to liked artworks service');
       } else {
+        console.log(' Removing artwork from service...');
+        console.log(' Before removal - service has artwork:', this.likedArtworksService.isArtworkLiked(this.artwork.objectID));
         this.likedArtworksService.removeLikedArtwork(this.artwork.objectID);
+        console.log(' After removal - service has artwork:', this.likedArtworksService.isArtworkLiked(this.artwork.objectID));
+        console.log(' Removed from liked artworks service');
       }
       
-      // Only sync with API when liking (increasing count)
-      if (this.isLiked) {
-        const likeData: Like = {
-          item_id: this.artwork.objectID.toString(),
-          likes: this.likes
-        };
+      // Check services state
+      console.log(' Checking service states...');
+      console.log('Is liked in service:', this.likedArtworksService.isArtworkLiked(this.artwork.objectID));
+      console.log('Like count in service:', this.likeCountService.getLikeCount(this.artwork.objectID));
+      
+      // Sync with API for both like and unlike operations
+      const likeData: Like = {
+        item_id: this.artwork.objectID.toString(),
+        likes: this.likes
+      };
 
-        this.apiService.postLike(likeData).subscribe({
-          next: (response) => {
-            if (response && typeof response.likes === 'number') {
-              this.likes = response.likes;
-              this.likeCountService.updateLikeCount(this.artwork.objectID, this.likes);
-            }
-          },
-          error: (error) => {
-            console.error('Error posting like:', error);
-            // Rollback all changes on error
-            this.isLiked = previousLikedState;
-            this.likes = previousLikeCount;
+      console.log(' Sending to API:', likeData);
+
+      this.apiService.postLike(likeData).subscribe({
+        next: (response) => {
+          console.log(' API SUCCESS:', response);
+          if (response && typeof response.likes === 'number') {
+            this.likes = response.likes;
             this.likeCountService.updateLikeCount(this.artwork.objectID, this.likes);
-            this.saveUserLike(this.artwork.objectID.toString(), this.isLiked);
-            
-            if (previousLikedState) {
-              this.likedArtworksService.addLikedArtwork(this.artwork);
-            } else {
-              this.likedArtworksService.removeLikedArtwork(this.artwork.objectID);
-            }
+            console.log(' Updated count from API:', this.likes);
           }
-        });
-      }
+          // Force another change detection after API response
+          console.log(' Final change detection after API success');
+          this.detectChanges();
+        },
+        error: (error) => {
+          console.error(' API ERROR:', error);
+          // Rollback all changes on error
+          console.log(' Rolling back changes...');
+          this.isLiked = previousLikedState;
+          this.likes = previousLikeCount;
+          this.likeCountService.updateLikeCount(this.artwork.objectID, this.likes);
+          
+          if (previousLikedState) {
+            this.likedArtworksService.addLikedArtwork(this.artwork);
+          } else {
+            this.likedArtworksService.removeLikedArtwork(this.artwork.objectID);
+          }
+          
+          // Force change detection after rollback
+          this.detectChanges();
+          console.log(' Rolled back to:', this.isLiked);
+        }
+      });
+      
+      console.log(' End of performToggleLike - Final state:', this.isLiked);
+      console.log(' Final like count:', this.likes);
+    }
+  }
+
+  // Force change detection for Android compatibility
+  private detectChanges() {
+    try {
+      console.log(' Forcing change detection...');
+      
+      // Primary change detection
+      this.cdr.detectChanges();
+      
+      // Mark for check
+      this.cdr.markForCheck();
+      
+      // Also force check on the next tick with multiple attempts
+      setTimeout(() => {
+        try {
+          this.cdr.detectChanges();
+          this.cdr.markForCheck();
+          console.log(' Change detection cycle 1 completed');
+        } catch (e) {
+          console.log('Change detection cycle 1 failed:', e);
+        }
+      }, 0);
+      
+      // Second attempt after 10ms
+      setTimeout(() => {
+        try {
+          this.cdr.detectChanges();
+          this.cdr.markForCheck();
+          console.log(' Change detection cycle 2 completed');
+        } catch (e) {
+          console.log(' Change detection cycle 2 failed:', e);
+        }
+      }, 10);
+      
+      // Third attempt after 50ms
+      setTimeout(() => {
+        try {
+          this.cdr.detectChanges();
+          this.cdr.markForCheck();
+          console.log(' Change detection cycle 3 completed');
+        } catch (e) {
+          console.log(' Change detection cycle 3 failed:', e);
+        }
+      }, 50);
+      
+    } catch (error) {
+      console.log(' Primary change detection failed:', error);
     }
   }
 
   // Remove artwork from user's liked list (Tab3 only)
-  async removeFromLiked() {
+  removeFromLiked() {
     if (!this.artwork?.objectID) return;
 
     const artworkTitle = this.artwork.title || 'this artwork';
     const artistName = this.artwork.artistDisplayName || 'Unknown Artist';
     
-    const alert = await this.alertController.create({
-      header: 'Remove from Liked Artworks',
-      message: `Are you sure you want to remove "${artworkTitle}" by ${artistName} from your liked artworks?`,
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary'
-        },
-        {
-          text: 'Yes, Remove',
-          cssClass: 'danger',
-          handler: () => {
-            this.confirmRemoveFromLiked();
-          }
-        }
-      ]
-    });
-
-    await alert.present();
+    const confirmed = confirm(`Remove from Liked Artworks\n\nAre you sure you want to remove "${artworkTitle}" by ${artistName} from your liked artworks?`);
+    
+    if (confirmed) {
+      console.log(' User confirmed removal via native confirm');
+      this.confirmRemoveFromLiked();
+    } else {
+      console.log(' User cancelled removal via native confirm');
+    }
   }
 
   // Execute removal after user confirmation
@@ -416,7 +479,6 @@ export class CardComponent implements OnInit, OnDestroy {
     if (this.artwork?.objectID) {
       this.likedArtworksService.removeLikedArtwork(this.artwork.objectID);
       this.isLiked = false;
-      this.saveUserLike(this.artwork.objectID.toString(), false);
       this.loadLikes(); // Reload to show actual global count
     }
   }

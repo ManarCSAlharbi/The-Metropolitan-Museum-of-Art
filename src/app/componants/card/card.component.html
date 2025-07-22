@@ -17,12 +17,15 @@
         (click)="toggleLike()"
         class="like-button"
         [class.liked-state]="isLiked"
+        [attr.data-liked]="isLiked"
         *ngIf="!showRemoveButton">
         <ion-icon 
           slot="icon-only" 
           [name]="isLiked ? 'heart' : 'heart-outline'"
           class="like-icon"
-          [class.is-liked]="isLiked">
+          [class.is-liked]="isLiked"
+          [attr.data-icon-liked]="isLiked"
+          [style.color]="isLiked ? '#ff4444' : '#666'">
         </ion-icon>
       </ion-button>
       

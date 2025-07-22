@@ -35,9 +35,14 @@ export class LikedArtworksService {
 
   // Add artwork to user's liked collection
   addLikedArtwork(artwork: any): void {
+    console.log(`➕ SERVICE: Attempting to add artwork ${artwork.objectID} - "${artwork.title}"`);
+    console.log(`➕ SERVICE: Current liked artworks count: ${this.likedArtworks.length}`);
+    
     const existingIndex = this.likedArtworks.findIndex(
       item => item.objectID === artwork.objectID
     );
+
+    console.log(`➕ SERVICE: Existing artwork index: ${existingIndex}`);
 
     if (existingIndex === -1) {
       const likedArtwork: LikedArtwork = {
@@ -52,21 +57,40 @@ export class LikedArtworksService {
       };
 
       this.likedArtworks.unshift(likedArtwork); // Add to beginning
+      console.log(`➕ SERVICE: Added artwork "${artwork.title}" (ID: ${artwork.objectID})`);
+      console.log(`➕ SERVICE: New liked artworks count: ${this.likedArtworks.length}`);
+      
       // Removed saveLikedArtworks call
       this.likedArtworksSubject.next([...this.likedArtworks]);
+      console.log(`➕ SERVICE: Notified subscribers of change`);
+    } else {
+      console.log(`➕ SERVICE: Artwork ${artwork.objectID} already exists in liked collection`);
     }
   }
 
   // Remove artwork from user's liked collection
   removeLikedArtwork(objectID: number): void {
+    console.log(`🗑️ SERVICE: Attempting to remove artwork ${objectID}`);
+    console.log(`🗑️ SERVICE: Current liked artworks count: ${this.likedArtworks.length}`);
+    console.log(`🗑️ SERVICE: Artwork IDs in collection:`, this.likedArtworks.map(a => a.objectID));
+    
     const index = this.likedArtworks.findIndex(
       item => item.objectID === objectID
     );
 
+    console.log(`🗑️ SERVICE: Found artwork at index: ${index}`);
+
     if (index !== -1) {
+      const removedArtwork = this.likedArtworks[index];
       this.likedArtworks.splice(index, 1);
+      console.log(`🗑️ SERVICE: Removed artwork "${removedArtwork.title}" (ID: ${objectID})`);
+      console.log(`🗑️ SERVICE: New liked artworks count: ${this.likedArtworks.length}`);
+      
       // Removed saveLikedArtworks call
       this.likedArtworksSubject.next([...this.likedArtworks]);
+      console.log(`🗑️ SERVICE: Notified subscribers of change`);
+    } else {
+      console.log(`🗑️ SERVICE: Artwork ${objectID} not found in liked collection`);
     }
   }
 
