@@ -77,7 +77,7 @@
         <img [src]="artwork?.primaryImageSmall || artwork?.primaryImage" 
              alt="Artwork"
              onerror="this.src='assets/icon/favicon.png'" />
-        <h2><strong>{{ artwork?.title || 'Untitled' }}</strong></h2>
+        <h2 class ="h2"color="teal"><strong>{{ artwork?.title || 'Untitled' }}</strong></h2>
         <h3 class="h3">{{ artwork?.artistDisplayName || 'Unknown Artist' }}</h3>
             
         <p><strong>Dimensions:</strong> {{ artwork?.dimensions || 'Not specified' }}</p>

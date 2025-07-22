@@ -98,6 +98,15 @@ ion-content {
   }
 }
 
+/* Artwork title styling inside modal */
+.h2 {
+  font-size: 1.4rem;
+  font-weight: 800; /* Use number instead of 'extra-bold' */
+  margin: 0 0 8px;
+  padding: 16px;
+  color: var(--ion-color-teal, teal);
+}
+
 ion-title {
   font-size: 1.4rem;
   font-weight: extra-bold;
