@@ -97,8 +97,20 @@ This is a cross-platform mobile application built with **Angular 18** and **Ioni
 
 ## 🏗 Architecture
 ### Component Structure
-src/app/ ├── components/ # Reusable UI components │ ├── card/ # Artwork display component │ └── like/ # Like button component ├── pages/ # Route-level page components │ ├── home/ # Main artwork gallery │ ├── search/ # Search functionality │ ├── departments/ # Department browsing │ └── liked-artworks/ # User favorites ├── services/ # Business logic and API communication │ ├── api/ # HTTP service for Met Museum API │ ├── liked-artworks/ # Local storage management │ └── like-count/ # Global like state management └── shared/ # Shared utilities and interfaces
-
+src/app/
+├── components/         # Reusable UI components
+│   ├── card/           # Artwork display component
+│   └── like/           # Like button component
+├── pages/              # Route-level page components
+│   ├── home/           # Main artwork gallery
+│   ├── search/         # Search functionality
+│   ├── departments/    # Department browsing
+│   └── liked-artworks/ # User favorites
+├── services/           # Business logic and API communication
+│   ├── api/            # HTTP service for Met Museum API
+│   ├── liked-artworks/ # Local storage management
+│   └── like-count/     # Global like state management
+└── shared/             # Shared utilities and interfaces
 
 ### State Management
 - **Reactive Services**: BehaviorSubjects for global state
