@@ -97,6 +97,7 @@ This is a cross-platform mobile application built with **Angular 18** and **Ioni
 
 ## 🏗 Architecture
 ### Component Structure
+
 src/app/
 ├── components/         # Reusable UI components
 │   ├── card/           # Artwork display component
@@ -112,12 +113,13 @@ src/app/
 │   └── like-count/     # Global like state management
 └── shared/             # Shared utilities and interfaces
 
+---
+
 ### State Management
 - **Reactive Services**: BehaviorSubjects for global state
 - **Local Storage**: Persistent user preferences and favorites
 - **HTTP Caching**: Optimized API calls with result caching
 - **Error Recovery**: Automatic retry logic with exponential backoff
-
 ---
 
 ## 🚦 Getting Started
@@ -127,38 +129,37 @@ src/app/
 - **npm** or **yarn**
 - **Ionic CLI**: `npm install -g @ionic/cli`
 - **Angular CLI**: `npm install -g @angular/cli`
+---
 
 ### Installation
-```bash
+
 # Clone the repository
 git clone https://github.com/ManarCSAlharbi/The-Metropolitan-Museum-of-Art.git
 cd The-Metropolitan-Museum-of-Art
 
 # Install dependencies
-npm install
+`npm install`
 
 # Start development server
-ionic serve
+`ionic serve`
 
 # Build for production
-ionic build --prod
+`ionic build --prod`
+
 # Add mobile platforms
-ionic capacitor add ios
-ionic capacitor add android
+```ionic capacitor add ios
+ionic capacitor add android```
 
 # Build and sync
-ionic capacitor build
-ionic capacitor sync
+```ionic capacitor build
+ionic capacitor sync```
 
 # Open in native IDEs
-ionic capacitor open ios
-ionic capacitor open android
+```ionic capacitor open ios
+ionic capacitor open android```
 
 
-## Mobile Development
-
-## Testing
-
+---
 ## 📊 Performance Features
 
 - **Bundle Size Optimization:** Tree-shaking with standalone components
