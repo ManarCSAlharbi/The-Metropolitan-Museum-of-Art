@@ -1,152 +1,100 @@
-# The Metropolitan Museum of Art
+# The Metropolitan Museum of Art - Mobile App
 
 ## Overview
 
-This repository is a training project developed during a program in SAUDIA. The purpose of the application is to display a list of artworks from the Metropolitan Museum of Art. The project aims to provide users with an interactive and visually engaging experience to browse and explore artworks from the museum. You can access the live project [here](https://indigodavid.github.io/metropolitan-museum-of-art/).
+This is a cross-platform mobile application built with **Angular 18** and **Ionic Framework** that showcases artworks from The Metropolitan Museum of Art. Developed as a comprehensive training project, the app provides an immersive, mobile-first experience for browsing and interacting with the museum's extensive collection through their public API.
+
+**Live Demo**: ---------------
 
 ---
 
-## Features
+## 🚀 Features
 
-### Primary Features
-1. **Header Display**: 
-   - A header prominently displays the name of the museum.
+### Core Functionality
+- **Artwork Gallery**: Browse thousands of artworks with infinite scroll loading
+- **Search & Discovery**: Real-time search functionality with debounced input
+- **Department Navigation**: Explore artworks by museum departments (Modern Art, European Paintings, etc.)
+- **Interactive Engagement**: Like artworks and add comments with real-time updates
+- **Favorites Collection**: Personal collection of liked artworks with local storage persistence
 
-2. **Art List**:
-   - Each artwork displayed in the list includes:
-     - **Picture**: A visual representation of the artwork.
-     - **Title**: The artwork's title.
-     - **Artist Name**: Name of the artist who created the artwork.
-     - **Number of Likes**: Displays the total likes for the artwork.
-     - **Like Button**: Enables users to like the artwork.
-     - **Comment Button**: Opens the comment section for the artwork.
+### User Experience
+- **Responsive Design**: Optimized for mobile devices with touch-friendly interactions
+- **Offline-Ready**: Progressive Web App (PWA) capabilities with service worker
+- **Native Features**: Splash screen with startup audio using Capacitor plugins
+- **Smooth Navigation**: Tab-based navigation with lazy loading
+- **Error Handling**: Graceful fallbacks and retry mechanisms for API failures
 
-3. **Art Pop-Up**:
-   - Upon interacting with an artwork, a detailed pop-up provides:
-     - **Art Picture**: A larger view of the artwork.
-     - **Title**: Title of the artwork.
-     - **Artist Name**: Name of the artist.
-     - **Art Dimensions**: Dimensions of the artwork.
-     - **Art Date**: The date the artwork was created.
-     - **Total Number of Comments**: Total count of comments for the artwork.
-     - **List of Comments**: Includes:
-       - Comment date.
-       - Comment owner name.
-       - The actual comment.
-     - **Add Comment Section**: Users can add their own comments.
-
-### Additional Functionalities
-Beyond the specified requirements, the project includes:
-- **Responsive Design**:
-  - The application is optimized for various devices using SCSS.
-  
-- **Dynamic Data Handling**:
-  - Integrates with the **Metropolitan Museum of Art Collection API** to fetch real-time data about artworks.
-
-- **Likes Persistence**:
-  - User likes are stored and updated dynamically using the API.
-
-- **Comment Management**:
-  - Comments are fetched and posted using the API, ensuring real-time updates.
-
-- **Error Handling**:
-  - Graceful handling of API errors and user input validation.
-
-- **Pagination for Art List**:
-  - Allows users to navigate through multiple pages of artworks seamlessly.
-
-- **Search Functionality**:
-  - Users can search for specific artworks based on titles or artist names.
+### Technical Highlights
+- **Modern Architecture**: Angular 18 standalone components for optimal tree-shaking
+- **State Management**: RxJS-powered reactive state with BehaviorSubjects
+- **Performance**: Lazy loading, OnPush change detection, and optimized images
+- **Type Safety**: Full TypeScript implementation with strict mode
+- **Testing**: Comprehensive test suite with Jasmine and Karma
 
 ---
 
-## Tabs/Pages in the Application
+## 📱 App Structure
 
 ### **Home Tab**
-The Home Tab serves as the default landing page of the application. It displays:
-- A list of artworks fetched dynamically from the API.
-- Each artwork includes a picture, title, artist name, number of likes, and options to like or comment.
-- This tab provides users with an overview of all available artworks.
-
-### **Art Details Tab**
-When users interact with an artwork, they are navigated to the Art Details Tab. This page showcases:
-- A larger view of the selected artwork.
-- Detailed information about the artwork, such as dimensions, creation date, and artist name.
-- A comments section where users can view existing comments and add their own.
+- Displays curated artworks with infinite scroll pagination
+- Each artwork card shows image, title, artist, and interaction buttons
+- Skeleton loading states for smooth user experience
+- Error handling with retry functionality
 
 ### **Search Tab**
-The Search Tab allows users to search for specific artworks based on:
-- Artwork titles.
-- Artist names.
-Users can enter their query, and the application will dynamically fetch and display matching results.
+- Real-time search with 300ms debounce for optimal performance
+- Search by artwork title, artist name, or keywords
+- Dynamic results with loading indicators
+- Empty state handling for no results
 
-### **Department Tab**
-The Department Tab categorizes artworks by their respective departments within the museum. Users can:
-- Browse departments (e.g., Modern Art, Ancient Art, European Paintings).
-- View a curated list of artworks specific to each department.
-This tab adds structure to the browsing experience, enabling users to explore artworks within their preferred categories.
+### **Departments Tab**
+- Browse artworks by museum departments
+- Grid layout showcasing department categories
+- Navigation to department-specific artwork collections
+- Filtered results with up to 15 artworks per department
 
----
+### **Favorites Tab**
+- Personal collection of liked artworks
+- Local storage persistence across sessions
+- Remove functionality with confirmation
+- Empty state with call-to-action
 
-## Technology Stack
-
-This project utilizes the following technologies:
-- **TypeScript**: For robust and type-safe development.
-- **SCSS**: For styling and responsive design.
-- **HTML**: Markup for page structure.
-- **JavaScript**: For additional interactivity.
-- **Ruby**: Used for specific backend API integration.
-- **Java**: For additional backend functionalities.
-- **Ionic Framework**: Used to build the cross-platform, mobile-friendly user interface.
-- **Capacitor**: Enables native functionality and deployment on mobile devices.
-
----
-
-## API Integration
-
-The project integrates the **Metropolitan Museum of Art Collection API** to fetch data related to artworks. Specifically, the following endpoints are used:
-- **Art Data Fetching**: Retrieves artwork details such as title, artist name, dimensions, and date.
-- **Likes Management**: Allows updating and fetching the number of likes for each artwork.
-- **Comments Management**: Handles fetching and posting comments for individual artworks.
-- **Department Data Fetching**: Fetches information about museum departments and their associated artworks.
+### **Artwork Details Modal**
+- Full-screen artwork viewing experience
+- Comprehensive artwork metadata (dimensions, date, medium)
+- Comments system with real-time updates
+- Like functionality with optimistic UI updates
+- High-resolution image viewing with zoom capabilities
 
 ---
 
-## Installation and Usage
+## 🛠 Technology Stack
 
-### Requirements
-To run the project locally:
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/ManarCSAlharbi/The-Metropolitan-Museum-of-Art.git
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm start
-   ```
-4. Open the application in your browser:
-   ```bash
-   http://localhost:3000
-   ```
+### Frontend
+- **Angular 18**: Latest Angular with standalone components and signal-based reactivity
+- **Ionic 8**: Cross-platform UI components with native mobile experience
+- **TypeScript 5**: Type-safe development with strict configuration
+- **RxJS 7**: Reactive programming for state management and HTTP operations
+- **SCSS**: Advanced styling with CSS custom properties and responsive design
 
----
+### Mobile & PWA
+- **Capacitor 6**: Native functionality and app deployment
+- **PWA Features**: Service worker, offline capabilities, and app-like experience
+- **Native Plugins**: Audio playback, splash screen, and device APIs
 
-## Contribution
+### Development Tools
+- **Angular CLI**: Project scaffolding and build optimization
+- **ESLint & Prettier**: Code quality and formatting standards
+- **Jasmine & Karma**: Unit testing framework
+- **Chrome DevTools**: Mobile debugging and performance profiling
 
-Contributions are welcome! Feel free to open issues or submit pull requests for enhancements or bug fixes.
+### API Integration
+- **Metropolitan Museum API**: RESTful API for artwork data
+- **Custom Backend**: Node.js/Express API for likes and comments management
+- **HTTP Interceptors**: Error handling and request/response transformation
 
 ---
 
-## License
+## 🏗 Architecture
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## Acknowledgments
-
-Special thanks to the Metropolitan Museum of Art for providing the API that made this project possible.
+### Component Structure
