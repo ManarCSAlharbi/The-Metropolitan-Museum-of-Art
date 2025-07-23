@@ -1,14 +1,10 @@
-Here’s the full code for your enhanced `README.md` file.  
-**Copy and paste this markdown into your repository’s README file:**
-
----
-
 # The Metropolitan Museum of Art - Mobile App
 
 ## Overview
 
-This project is a cross-platform mobile application, built with **Angular 18** and **Ionic Framework**, developed during a training program at SAUDIA. The app provides users with an interactive and visually engaging experience for browsing and exploring artworks from The Metropolitan Museum of Art using their public API.  
-**Live Demo:** [indigodavid.github.io/metropolitan-museum-of-art/](https://indigodavid.github.io/metropolitan-museum-of-art/)
+This project is a cross-platform mobile application, built with **Angular 18** and **Ionic Framework**, developed during a training program at SAUDIA. The app provides users with an interactive and visually engaging experience for browsing and exploring artworks from The Metropolitan Museum of Art using their public API. [indigodavid.github.io/metropolitan-museum-of-art/](https://indigodavid.github.io/metropolitan-museum-of-art/)
+
+**Live Demo:** 
 
 ---
 
@@ -142,4 +138,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-You can now copy and paste this directly into your repository’s `README.md` file!
