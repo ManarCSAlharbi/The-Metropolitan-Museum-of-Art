@@ -96,5 +96,104 @@ This is a cross-platform mobile application built with **Angular 18** and **Ioni
 ---
 
 ## 🏗 Architecture
-
 ### Component Structure
+src/app/ ├── components/ # Reusable UI components │ ├── card/ # Artwork display component │ └── like/ # Like button component ├── pages/ # Route-level page components │ ├── home/ # Main artwork gallery │ ├── search/ # Search functionality │ ├── departments/ # Department browsing │ └── liked-artworks/ # User favorites ├── services/ # Business logic and API communication │ ├── api/ # HTTP service for Met Museum API │ ├── liked-artworks/ # Local storage management │ └── like-count/ # Global like state management └── shared/ # Shared utilities and interfaces
+
+
+### State Management
+- **Reactive Services**: BehaviorSubjects for global state
+- **Local Storage**: Persistent user preferences and favorites
+- **HTTP Caching**: Optimized API calls with result caching
+- **Error Recovery**: Automatic retry logic with exponential backoff
+
+---
+
+## 🚦 Getting Started
+
+### Prerequisites
+- **Node.js** (v18 or higher)
+- **npm** or **yarn**
+- **Ionic CLI**: `npm install -g @ionic/cli`
+- **Angular CLI**: `npm install -g @angular/cli`
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/ManarCSAlharbi/The-Metropolitan-Museum-of-Art.git
+cd The-Metropolitan-Museum-of-Art
+
+# Install dependencies
+npm install
+
+# Start development server
+ionic serve
+
+# Build for production
+ionic build --prod
+# Add mobile platforms
+ionic capacitor add ios
+ionic capacitor add android
+
+# Build and sync
+ionic capacitor build
+ionic capacitor sync
+
+# Open in native IDEs
+ionic capacitor open ios
+ionic capacitor open android
+
+
+## Mobile Development
+
+## Testing
+
+## 📊 Performance Features
+
+- **Bundle Size Optimization:** Tree-shaking with standalone components
+- **Lazy Loading:** Route-based code splitting
+- **Image Optimization:** NgOptimizedImage for responsive images
+- **Virtual Scrolling:** Efficient rendering of large artwork lists
+- **PWA Optimization:** Service worker caching strategies
+
+---
+
+## 🔧 Configuration
+
+- **Environment Variables**
+- **Build Configuration**
+  - `angular.json`: Optimized build configurations
+  - `capacitor.config.ts`: Native app settings
+  - `ionic.config.json`: Ionic CLI configuration
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch:  
+   `git checkout -b feature/new-feature`
+3. Commit changes:  
+   `git commit -m 'Add new feature'`
+4. Push to branch:  
+   `git push origin feature/new-feature`
+5. Submit a pull request
+
+**Development Guidelines:**
+- Follow Angular style guide and best practices
+- Write unit tests for new features
+- Use conventional commit messages
+- Ensure mobile responsiveness
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- The Metropolitan Museum of Art for providing the comprehensive public API
+- Angular Team for the robust framework and excellent documentation
+- Ionic Team for the cross-platform mobile development framework
