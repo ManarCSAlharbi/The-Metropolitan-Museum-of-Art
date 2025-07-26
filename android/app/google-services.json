@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "742072024390",
+    "project_id": "themetropolitanmuseumeapp",
+    "storage_bucket": "themetropolitanmuseumeapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:742072024390:android:c6089b0b5059e989613947",
+        "android_client_info": {
+          "package_name": "io.ionic.starter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxPTZgxLHf8r3DOJZw0OmInljuP9FKFFg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

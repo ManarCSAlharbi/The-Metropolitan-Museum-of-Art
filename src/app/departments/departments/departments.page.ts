@@ -3,18 +3,18 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, 
-  IonGrid, IonRow, IonCol, IonButton, IonCard, 
-  IonCardContent, IonCardHeader, IonCardTitle,
-  IonSpinner, IonText, IonList, IonLabel, IonItem } from '@ionic/angular/standalone';
+  IonSpinner, IonText, IonList, IonLabel, IonItem, IonButton 
+} from '@ionic/angular/standalone';
 import { ApiService, Department } from '../../services/api/api.service';
 
 @Component({
   selector: 'app-departments',
   templateUrl: './departments.page.html',
   styleUrls: ['./departments.page.scss'],
-  imports: [IonItem, IonLabel, IonList, 
+  imports: [
+    IonItem, IonLabel, IonList, 
     IonContent, IonHeader, IonTitle, IonToolbar, 
-    IonSpinner, IonText, CommonModule,IonButton
+    IonSpinner, IonText, CommonModule, IonButton
   ]
 })
 export class DepartmentsPage implements OnInit {
@@ -31,10 +31,10 @@ export class DepartmentsPage implements OnInit {
     this.loadDepartments();
   }
 
-  private loadDepartments() { // Fetch departments from the API
+  // Fetch departments from the API
+  private loadDepartments() {
     this.apiService.getDepartments().subscribe({
       next: (response) => {
-        console.log('Departments loaded successfully:', response.departments); // Log the loaded departments
         this.departments = response.departments;
         this.isLoading = false;
       },
@@ -46,26 +46,17 @@ export class DepartmentsPage implements OnInit {
     });
   }
 
-  // Navigate to the department objects page with the selected department ID
+  // Navigate to department objects page
   navigateToDepartment(department: Department) {
-    console.log(`Navigating to department: ${department.displayName} (ID: ${department.departmentId})`);
-    // Use the router to navigate to the department objects page
     this.router.navigate(['/department-objects', department.departmentId], {
-      // Pass the department name as a query parameter for display purposes
-      queryParams: { 
-        name: department.displayName,
-        timestamp: Date.now() 
-      }
-    }).then(success => { // Log the success of the navigation
-      console.log(`Navigation successful: ${success}`);
-    }).catch(error => { // Log any errors during navigation
-      console.error('Navigation error:', error);
+      queryParams: { name: department.displayName }
     });
   }
+
   // Retry loading departments on error
   onRetry() {
-    this.isLoading = true; // Reset loading state
-    this.error = null; // Reset error state
+    this.isLoading = true;
+    this.error = null;
     this.loadDepartments();
   }
 

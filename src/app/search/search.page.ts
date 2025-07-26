@@ -7,34 +7,32 @@ import { FormsModule } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
-
-
 @Component({
-  selector: 'app-search', // Changed from app-tab2 to app-search
+  selector: 'app-search',
   templateUrl: 'search.page.html',
   styleUrls: ['search.page.scss'],
   imports: [
     IonHeader, IonToolbar, IonTitle, IonContent, IonSearchbar, 
     IonGrid, IonRow, IonCol, IonSpinner,
-    CardComponent, CommonModule, FormsModule,
-     
+    CardComponent, CommonModule, FormsModule
   ]
 })
-export class SearchPage implements OnInit, OnDestroy { // Changed from Tab2Page to SearchPage
-  searchTerm: string = '';   // Current search input, bound to the template
-  artworks: Artwork[] = []; // Search results
-  isLoading: boolean = false; // Loading state
+export class SearchPage implements OnInit, OnDestroy {
+  searchTerm: string = '';
+  artworks: Artwork[] = [];
+  isLoading: boolean = false;
   
   // Search management
-  private searchSubject = new Subject<string>(); // RxJS subject for reactive search
+  private searchSubject = new Subject<string>();
   private searchSubscription?: Subscription;
 
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
+    // Set up reactive search with debouncing
     this.searchSubscription = this.searchSubject.pipe(
-      debounceTime(500), // Wait for 500ms pause in events
-      distinctUntilChanged(), // Ignore if next search term is same as previous
+      debounceTime(500), // Wait 500ms after user stops typing
+      distinctUntilChanged(), // Ignore duplicate search terms
       switchMap(term => {
         if (!term.trim()) {
           this.artworks = [];

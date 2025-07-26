@@ -20,14 +20,14 @@ import { Artwork } from '../services/api/api.service';
     CommonModule
   ],
 })
-export class LikedArtworksPage implements OnInit, OnDestroy { // Changed from Tab3Page to LikedArtworksPage
+export class LikedArtworksPage implements OnInit, OnDestroy {
   likedArtworks: Artwork[] = [];
   private subscription?: Subscription;
 
   constructor(private likedArtworksService: LikedArtworksService) {}
 
   ngOnInit() {
-    // Subscribe to liked artworks updates for real-time synchronization
+    // Subscribe to liked artworks for real-time updates
     this.subscription = this.likedArtworksService.getLikedArtworks().subscribe(
       (artworks) => {
         this.likedArtworks = artworks;

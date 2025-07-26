@@ -24,22 +24,21 @@ import { Subscription, combineLatest } from 'rxjs';
   ]
 })
 export class DepartmentObjectsPage implements OnInit, OnDestroy {
-  departmentId!: number; // Department ID from route parameters
-  departmentName!: string; // Department name from query parameters
-  artworks: Artwork[] = []; // Artworks to display
-  isLoading = true; // Loading state
-  error: string | null = null; // Error message if loading fails
-  private routeSubscription?: Subscription; // Subscription for route changes
-  private artworkSubscription?: Subscription; // Subscription for artwork loading
+  departmentId!: number;
+  departmentName!: string;
+  artworks: Artwork[] = [];
+  isLoading = true;
+  error: string | null = null;
+  private routeSubscription?: Subscription;
+  private artworkSubscription?: Subscription;
 
   constructor(
-    private route: ActivatedRoute, // ActivatedRoute to access route parameters and query parameters
-    private apiService: ApiService // ApiService to fetch artworks
+    private route: ActivatedRoute,
+    private apiService: ApiService
   ) {}
 
   ngOnInit() {
-    // Subscribe to both route parameters and query parameters
-    // This allows us to react to changes in either the department ID or name
+    // Subscribe to route changes
     this.routeSubscription = combineLatest([
       this.route.paramMap,
       this.route.queryParamMap
@@ -47,9 +46,6 @@ export class DepartmentObjectsPage implements OnInit, OnDestroy {
       const newDepartmentId = +params.get('id')!;
       const newDepartmentName = queryParams.get('name') || '';
       
-      console.log(`Route changed: Department ID: ${newDepartmentId}, Name: ${newDepartmentName}`);
-      
-      // Always update and reload when parameters change
       this.departmentId = newDepartmentId;
       this.departmentName = newDepartmentName;
       this.loadArtworks();
@@ -66,40 +62,37 @@ export class DepartmentObjectsPage implements OnInit, OnDestroy {
   }
 
   loadArtworks() {
-    console.log(`Loading artworks for department ID: ${this.departmentId}, Name: ${this.departmentName}`);
-    
     this.isLoading = true;
     this.error = null;
-    this.artworks = []; // Clear previous artworks
+    this.artworks = [];
 
     if (this.artworkSubscription) {
       this.artworkSubscription.unsubscribe();
     }
-// Fetch artworks for the current department ID
+
     this.artworkSubscription = this.apiService.getDepartmentArtworks(this.departmentId).subscribe({
-next: (artworks) => {
-  console.log(`Received ${artworks.length} artworks for department ${this.departmentId}`);
-  // Collect up to 15 valid artworks with images, without using slice
-  const validArtworks: Artwork[] = [];
-  // Filter artworks to ensure they have required properties
-  for (const artwork of artworks) {
-    if (
-      artwork &&
-      artwork.objectID &&
-      artwork.title &&
-      (artwork.primaryImageSmall || artwork.primaryImage)
-    ) {
-      validArtworks.push(artwork); // Add valid artwork
-      if (validArtworks.length === 15) break; // Limit to 15 artworks
-    }
-  }
-  this.artworks = validArtworks; // Assign filtered artworks to the component
-  console.log(`Filtered to ${this.artworks.length} valid artworks`);
-  this.isLoading = false;
-  if (this.artworks.length === 0) {
-    this.error = `No artworks found for ${this.departmentName}. This department might not have any available images.`;
-  }
-},
+      next: (artworks) => {
+        // Filter and limit to 15 valid artworks with images
+        const validArtworks: Artwork[] = [];
+        for (const artwork of artworks) {
+          if (
+            artwork &&
+            artwork.objectID &&
+            artwork.title &&
+            (artwork.primaryImageSmall || artwork.primaryImage)
+          ) {
+            validArtworks.push(artwork);
+            if (validArtworks.length === 15) break;
+          }
+        }
+        
+        this.artworks = validArtworks;
+        this.isLoading = false;
+        
+        if (this.artworks.length === 0) {
+          this.error = `No artworks found for ${this.departmentName}. This department might not have any available images.`;
+        }
+      },
       error: (error) => {
         console.error('Error loading artworks:', error);
         this.error = `Failed to load artworks for ${this.departmentName}. Please try again.`;

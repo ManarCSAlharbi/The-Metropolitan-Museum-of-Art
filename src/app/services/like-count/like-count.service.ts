@@ -15,12 +15,12 @@ export class LikeCountService {
 
   constructor() {}
 
-  // Get reactive stream of like counts for real-time updates
+  // Get reactive stream of like counts
   getLikeCounts(): Observable<Map<number, number>> {
     return this.likeCountsSubject.asObservable();
   }
 
-  // Update like count for specific artwork and notify subscribers
+  // Update like count for specific artwork
   updateLikeCount(objectID: number, likes: number): void {
     this.likeCounts.set(objectID, likes);
     this.likeCountsSubject.next(new Map(this.likeCounts));
@@ -35,6 +35,4 @@ export class LikeCountService {
   hasLikeCount(objectID: number): boolean {
     return this.likeCounts.has(objectID);
   }
-
-  
 }

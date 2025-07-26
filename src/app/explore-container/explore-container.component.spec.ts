@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { ExploreContainerComponent } from './explore-container.component';
 
 describe('ExploreContainerComponent', () => {
@@ -7,6 +6,10 @@ describe('ExploreContainerComponent', () => {
   let fixture: ComponentFixture<ExploreContainerComponent>;
 
   beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ExploreContainerComponent]
+    }).compileComponents();
+
     fixture = TestBed.createComponent(ExploreContainerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

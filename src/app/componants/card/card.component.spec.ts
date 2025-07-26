@@ -1,9 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { CardComponent } from './card.component';
-import { AlertController,Platform } from '@ionic/angular/standalone';
-
-
+import { provideHttpClient } from '@angular/common/http';
 
 describe('CardComponent', () => {
   let component: CardComponent;
@@ -11,8 +8,8 @@ describe('CardComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CardComponent ],
-      imports: [IonicModule.forRoot()]
+      imports: [CardComponent],
+      providers: [provideHttpClient()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(CardComponent);
