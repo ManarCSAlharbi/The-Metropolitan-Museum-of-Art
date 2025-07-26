@@ -105,25 +105,6 @@ This project is a cross-platform mobile application, built with **Angular 18** a
 
 ---
 
-## 🤝 Contribution
-
-Contributions are welcome!
-- Fork the repository
-- Create a feature branch:  
-  ```bash
-  git checkout -b feature/your-feature
-  ```
-- Commit and push your changes
-- Submit a pull request
-
-**Guidelines:**
-- Follow Angular/Ionic best practices
-- Write unit tests for features
-- Use conventional commit messages
-- Ensure mobile responsiveness
-
----
-
 
 ## 🙏 Acknowledgments
 
