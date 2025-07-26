@@ -124,17 +124,13 @@ Contributions are welcome!
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
 
 ## 🙏 Acknowledgments
 
 - Metropolitan Museum of Art for their public API
 - Angular Team for the robust framework
 - Ionic Team for cross-platform mobile components
+
 
 ---
 
