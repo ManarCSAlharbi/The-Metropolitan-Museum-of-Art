@@ -13,8 +13,10 @@ This project is a cross-platform mobile application, built with **Angular 18** a
 
 ## Project Assets
 
-- [Google Drive: Project Assets and Files](https://drive.google.com/drive/folders/1YR9rFgraT2xXKQdYaaCjTQwidRTmk6GG?usp=drive_link)
+- [Google Drive: User Stories Documentation](https://drive.google.com/drive/folders/1YR9rFgraT2xXKQdYaaCjTQwidRTmk6GG?usp=drive_link)
 - [Figma Design File](https://www.figma.com/design/OBlMY98jyeLOL44BtWlypw/The-Metropolitan-Museum-of-Art---Design?node-id=0-1)
+
+---
 
 ## 🚀 Features
 
@@ -115,8 +117,11 @@ This project is a cross-platform mobile application, built with **Angular 18** a
 
 ## 🙏 Acknowledgments
 
-- Metropolitan Museum of Art for their public API
+- Special thanks to the Digital Products and Services Departments at SAUDIA Company for their invaluable guidance and support throughout the training program.
+- The Metropolitan Museum of Art for their public API
 - Angular Team for the robust framework
 - Ionic Team for cross-platform mobile components
+  
+  
 
 ---
