@@ -4,7 +4,10 @@
 
 This project is a cross-platform mobile application, built with **Angular 18** and **Ionic Framework**, developed during a training program at SAUDIA. The app provides users with an interactive and visually engaging experience for browsing and exploring artworks from The Metropolitan Museum of Art using their public API. [indigodavid.github.io/metropolitan-museum-of-art/](https://indigodavid.github.io/metropolitan-museum-of-art/)
 
+---
+
 **Live Demo:** 
+[Watch demo video](https://drive.google.com/drive/folders/1AFsqxm7XCTxLVhu9BRr-10WgK3DQQDgI?usp=sharing)
 
 ---
 
