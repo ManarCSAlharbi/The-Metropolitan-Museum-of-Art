@@ -69,7 +69,8 @@ This project is a cross-platform mobile application, built with **Angular 18** a
 - **HTML & JavaScript**: Core markup and logic.
 - **Ruby & Java**: Auxiliary backend integrations (if applicable).
 - **Capacitor**: Native functionality and mobile deployment.
-- 
+- **Firebase (Push Notifications):**
+  Cloud messaging service for delivering in-app alerts.
 
 ---
 
